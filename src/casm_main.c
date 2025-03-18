@@ -3,7 +3,7 @@
 #include <string.h>
 #include "casm_dict.h"
 #include "casm_globals.h"
-
+#include "casm_utils.h"
 
 int main(int *args, char **argv)
 {

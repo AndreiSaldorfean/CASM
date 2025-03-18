@@ -1,4 +1,5 @@
 #include "casm_utils.h"
+#include "re.h"
 
 void initGlobals(void){
     // Initialize the global variables
