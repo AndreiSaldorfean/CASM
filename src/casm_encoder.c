@@ -171,7 +171,7 @@ uint16_t getInstructionType(const char* inst)
 
     trim_whitespace(buffer);
 
-    switch (casmGetDict(buffer) & CASM_B4_MASK)
+    switch (casmGetDict(buffer) & CASM_ERR_MASK)
     {
         case CASM_B2_MASK:
             return CASM_B2_MASK;
@@ -179,6 +179,8 @@ uint16_t getInstructionType(const char* inst)
             return CASM_B3_MASK;
         case CASM_B4_MASK:
             return CASM_B4_MASK;
+        case CASM_ERR_MASK:
+            return CASM_ERR_MASK;
         default:
             return 0; /* TYPE B1 */
     }

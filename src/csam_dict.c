@@ -29,6 +29,7 @@ uint16_t casmGetDict(const char* value)
     khiter_t k = kh_get(PROGRAM, h, buffer);  // Lookup
     if (k != kh_end(h))
         return kh_val(h, k);
+    return -1;
 }
 
 void casmDestroyDict(void)

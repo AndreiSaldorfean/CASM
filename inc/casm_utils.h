@@ -14,6 +14,7 @@ extern "C"{
 #define CASM_B2_MASK (0x8000U)
 #define CASM_B3_MASK (0xC000U)
 #define CASM_B4_MASK (0xE000U)
+#define CASM_ERR_MASK (0xF000U)
 
 #define CASM_OPPCODE_RGX ("\\w+\\D")
 #define CASM_OPERAND1_RGX ("\\S+,")

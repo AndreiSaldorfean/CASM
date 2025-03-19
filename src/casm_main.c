@@ -64,6 +64,12 @@ int main(int argc, char **argv)
     while(fgets(instBuffer,20,fpInput) != NULL)
     {
         uint16_t instructionType = getInstructionType(instBuffer);
+        if(instructionType == CASM_ERR_MASK)
+        {
+            fprintf(stderr,"Error: Invalid instruction\n");
+            casmDestroyDict();
+            return 1;
+        }
         casmInstructionFrame_t instr = encodeInstruction(instBuffer,instructionType);
 
         if(instr.instr != 0)
