@@ -4,7 +4,7 @@
 #include "casm_dict.h"
 #include "casm_utils.h"
 #include "casm_encoder.h"
-#include "getopt.h"
+// #include "getopt.h" // not available for clang
 
 int main(int argc, char **argv)
 {
@@ -18,8 +18,8 @@ int main(int argc, char **argv)
 
     if((argc == 2 || argc >= 3) && (argv[1][0] != '-'))
     {
-       fpInput = fopen(argv[1],"rb");
-       optind = 2;
+       fopen_s(&fpInput,argv[1],"r+");
+       argIndex = 2;
     }
 
     if(argc == 2 && (argv[1][0] != '-'))
@@ -28,8 +28,13 @@ int main(int argc, char **argv)
         re_match("^\\S+\\.",argv[1],&len);
         memcpy(output_file,argv[1],len-1);
         memcpy(output_file + len - 1,".obj",4);
+        output_file[len + 3] = '\0';
 
-        fpOutput = fopen(output_file,"wb");
+        errno_t err = fopen_s(&fpOutput,output_file,"w+");
+        if (err != 0 || fpOutput == NULL) {
+            perror("Error opening file");
+            return 1;
+        }
     }
 
     if (fpInput == NULL && (argv[1][0] != '-'))
@@ -39,7 +44,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    while ((opt = getopt(argc, argv, "ho:")) != -1)
+    while ((opt = parse_args(argc, argv)) != 0xFFU)
     {
         switch (opt)
         {
@@ -53,7 +58,7 @@ int main(int argc, char **argv)
                     fprintf(stderr,"Usage: casm input_file -o output_file\n");
                     return 1;
                 }
-                fpOutput = fopen(optarg,"wb");
+                fopen_s(&fpOutput ,argv[argIndex],"w");
                 break;
             case '?':
                 casmDestroyDict();

@@ -166,7 +166,7 @@ uint16_t getInstructionType(const char* inst)
     int match = re_match(CASM_OPPCODE_RGX, inst, &match_len);
     char buffer[7] = {0};
 
-    strncpy(buffer, inst + match, match_len);
+    memcpy(buffer, inst + match, match_len);
     buffer[match_len] = '\0';
 
     trim_whitespace(buffer);

@@ -1,6 +1,6 @@
 all:
 	rm -rf build
-	cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles"
+	cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -G "Unix Makefiles"
 b:
 	cmake --build build
 r:
