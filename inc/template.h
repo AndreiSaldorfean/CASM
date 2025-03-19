@@ -1,40 +1,22 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef TEMPLATE_H
+#define TEMPLATE_H
 
 #ifdef __cplusplus
-extern "C"{
+extern "C"
+{
 #endif
 
-#include <stdint.h>
+/**
+ * Includes
+*/
 
 /* ============================================================================================================
                                             DEFINES and ENUMS
 ============================================================================================================ */
 
-#define CASM_B2_MASK (0x8000U)
-#define CASM_B3_MASK (0xC000U)
-#define CASM_B4_MASK (0xE000U)
-
-#define CASM_OPPCODE_RGX ("\\w+\\D")
-#define CASM_OPERAND1_RGX ("\\S+,")
-#define CASM_OPERAND2_RGX (",+.+$")
-#define CASM_SINGLE_OPERAND_RGX (" +.+$")
-
-#define CASM_IMM_AM_RGX ("[^R]+\\d+$")
-#define CASM_DIRECT_AM_RGX ("\\(R")
-#define CASM_INDIRECT_AM_RGX ("^\\(+.+\\)+$")
-#define CASM_INDEXED_AM_RGX ("\\d+\\(+.+\\)+$")
-
 /* ============================================================================================================
                                             TYPEDEFS AND STRUCTS
 ============================================================================================================ */
-
-typedef struct
-{
-    uint16_t instr;
-    uint16_t offset1;
-    uint16_t offset2;
-}casmInstructionFrame_t;
 
 /* ============================================================================================================
                                             Local Variables
@@ -52,10 +34,8 @@ typedef struct
                                             Global functions
 ============================================================================================================ */
 
-void trim_whitespace(char *str);
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* UTILS_H */
+#endif /* TEMPLATE_H */

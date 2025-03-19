@@ -1,4 +1,5 @@
 #include "casm_dict.h"
+#include <ctype.h>
 #include "casm_inst_formats.h"
 
 khash_t(PROGRAM) *h = NULL;
@@ -20,7 +21,12 @@ void casmInitDict(void)
 
 uint16_t casmGetDict(const char* value)
 {
-    khiter_t k = kh_get(PROGRAM, h, value);  // Lookup
+    char buffer[7] = {0};
+    for(int i = 0; value[i]; i++) {
+        buffer[i] = toupper(value[i]);
+    }
+
+    khiter_t k = kh_get(PROGRAM, h, buffer);  // Lookup
     if (k != kh_end(h))
         return kh_val(h, k);
 }

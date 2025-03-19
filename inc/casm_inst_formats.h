@@ -8,7 +8,7 @@ extern "C"{
 #include <stdint.h>
 
 /* ============================================================================================================
-                                                ENUMS
+                                            DEFINES and ENUMS
 ============================================================================================================ */
 
 /**
@@ -43,57 +43,57 @@ typedef enum
      *  DR: Destination Register - 4b
      *  OPPCODE | AMS | SR | AMD | DR
     */
-    CASM_MOV = 0, /* 0x0 */
-    CASM_ADD,
-    CASM_SUB,
-    CASM_CMP,
-    CASM_AND,
-    CASM_OR,
-    CASM_XOR,
+    CASM_MOV = 0x0000, /* 0x0 */
+    CASM_ADD = 0x1000,
+    CASM_SUB = 0x2000,
+    CASM_CMP = 0x3000,
+    CASM_AND = 0x4000,
+    CASM_OR  = 0x5000,
+    CASM_XOR = 0x6000,
     /**  B2 INSTRUCTIONS TYPE
      * CLR, NEG, INC, DEC, ASL, ASR, LSR, ROL, ROR, RLC, RRC
      * OPCODE: Operation Code - 10b
      * AMD: Addressing Mode Destination - 2b
      * SD: Destination Register - 4b
-     * OPPCODE | AMD | SD
+     * OPPCODE | AMD | DR
     */
-    CASM_CLR = 0b1000000000, /* 0x200 */
-    CASM_NEG,
-    CASM_INC,
-    CASM_DEC,
-    CASM_ASL,
-    CASM_ASR,
-    CASM_LSR,
-    CASM_ROL,
-    CASM_ROR,
-    CASM_RLC,
-    CASM_RRC,
-    CASM_JMP,
-    CASM_CALL,
-    CASM_PUSH,
-    CASM_POP,
+    CASM_CLR  = 0x8000, /* 0x800 */
+    CASM_NEG  = 0x8040,
+    CASM_INC  = 0x80C0,
+    CASM_DEC  = 0x8100,
+    CASM_ASL  = 0x8140,
+    CASM_ASR  = 0x81C0,
+    CASM_LSR  = 0x8200,
+    CASM_ROL  = 0x8240,
+    CASM_ROR  = 0x82C0,
+    CASM_RLC  = 0x8300,
+    CASM_RRC  = 0x8340,
+    CASM_JMP  = 0x83C0,
+    CASM_CALL = 0x8400,
+    CASM_PUSH = 0x8440,
+    CASM_POP  = 0x84C0,
     /** B3 INSTRUCTIONS TYPE
      * BR, BNE, BEQ, BPL, BMI, BCS, BCC, BVS, BVC
      * OPCODE: Operation Code - 8b
      * OFFSET: Offset - 8b
      * OPPCODE | OFFSET
      */
-    CASM_BR = 0b11000000, /* 0xC0 */
-    CASM_BNE,
-    CASM_BEQ,
-    CASM_BPL,
-    CASM_BMI,
-    CASM_BCS,
-    CASM_BCC,
-    CASM_BVS,
-    CASM_BVC,
+    CASM_BR  = 0xC000, /* 0xC0 */
+    CASM_BNE = 0xC100,
+    CASM_BEQ = 0xC200,
+    CASM_BPL = 0xC300,
+    CASM_BMI = 0xC400,
+    CASM_BCS = 0xC500,
+    CASM_BCC = 0xC600,
+    CASM_BVS = 0xC700,
+    CASM_BVC = 0xC800,
     /** B4 INSTRUCTIONS TYPE
      * CLC, CLV, CLZ, CLS, CCC, SEC, SEV, SEZ, SES, SCC, NOP, RET, RTI, HALT,
      * WAIT, PUSHPC, POPPC, PUSHF, POPF
      * OPCODE: Operation Code - 16b
      * OPPCODE
      */
-    CASM_CLC = 0b1110000000000000, /* 0xE00 */
+    CASM_CLC = 0xE000, /* 0xE00 */
     CASM_CLV,
     CASM_CLZ,
     CASM_CLS,
@@ -142,7 +142,7 @@ typedef enum
 }casm_registers_t;
 
 /* ============================================================================================================
-                                        TYPEDEFS AND STRUCTS
+                                            TYPEDEFS AND STRUCTS
 ============================================================================================================ */
 
 typedef struct{
@@ -159,6 +159,10 @@ typedef struct{
     char name[6];
     uint16_t index;
 }casm_regisertLookUpTable_t;
+
+/* ============================================================================================================
+                                            Local Variables
+============================================================================================================ */
 
 /* ============================================================================================================
                                             Global Variables
@@ -242,7 +246,21 @@ casm_regisertLookUpTable_t gRegisterTable[] = {
     { "R14",    CASM_REG14  },
     { "R15",    CASM_REG15  },
 };
+
+/* ============================================================================================================
+                                            Local functions
+============================================================================================================ */
+
+/* ============================================================================================================
+                                            Global functions
+============================================================================================================ */
+
+/* ============================================================================================================
+                                        TYPEDEFS AND STRUCTS
+============================================================================================================ */
+
 #ifdef __cplusplus
 }
 #endif
+
 #endif /* OPPCODES_H */

@@ -1,13 +1,24 @@
 #include "casm_utils.h"
-#include "re.h"
+#include <string.h>
+#include <ctype.h>
 
-void initGlobals(void){
-    // Initialize the global variables
-}
+/* ============================================================================================================
+                                           Local functions
+============================================================================================================ */
 
-uint8_t identifyInstruction(const char* inst)
+
+/* ============================================================================================================
+                                           Global functions
+============================================================================================================ */
+
+void trim_whitespace(char *str)
 {
-    re_t pattern = re_compile("(\\w\\d)$");
-    int match = re_matchp(pattern, inst, 0);
-    return 0;
+    char *start = str;
+    while (isspace((unsigned char)*start)) start++;
+
+    char *end = str + strlen(str) - 1;
+    while (end > start && isspace((unsigned char)*end)) end--;
+
+    memmove(str, start, end - start + 1);
+    str[end - start + 1] = '\0';
 }
