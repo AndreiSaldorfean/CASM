@@ -9,29 +9,24 @@ int main(int *args, char **argv)
 {
     casmInitDict();
     FILE* fp = fopen("main.obj","wb");
+    FILE* fp2 = fopen("main.s","rb");
+    system("dir");
     if (!fp) {
         perror("Error opening file");
         casmDestroyDict();
         return 1;
     }
-    const char *instruction = "MOV 12(R1), R2";
-    const char instArr[6][20] = {
-        "MOV 12(R1), R2",
-        "ADD R1, R2",
-        "SUB R1, R2",
-        "CMP R1, R2",
-        "AND R1, R2",
-        "OR R1, R2",
-    };
-    for( int i = 0; i < 6; i++) {
-        uint16_t instructionType = getInstructionType(instArr[i]);
-        casmInstructionFrame_t instr = encodeInstruction(instArr[i],instructionType);
-        if(instr.instr) { fwrite(&instr.instr,2,1,fp); }
-        if(instr.offset1) { fwrite(&instr.offset1,2,1,fp); }
-        if(instr.offset2) { fwrite(&instr.offset2,2,1,fp); }
+    char instBuffer[30] = {0};
+
+    while(fgets(instBuffer,20,fp2) != NULL) {
+        uint16_t instructionType = getInstructionType(instBuffer);
+        casmInstructionFrame_t instr = encodeInstruction(instBuffer,instructionType);
+        print_binary(instr.instr);
+        printf("\t%X\t%s",instr.instr,instBuffer);
     }
 
     fclose(fp);
+    fclose(fp2);
     casmDestroyDict();
     return 0;
 }

@@ -65,26 +65,9 @@ static casmInstructionFrame_t getEncodedInstruction(char** instructionTokens, ui
     {
         case 0:
         {
-            uint8_t ams = getAddressingMode(instructionTokens[1]);
+            /*--------------------------- SOURCE ------------------------------*/
+            uint8_t ams = getAddressingMode(instructionTokens[2]);
             if (ams == 3)
-            {
-                off = 0;
-                offset = re_match("\\d+\\(",instructionTokens[1],&off);
-                char buffer[4] = {0};
-                memcpy(buffer, instructionTokens[1] + offset, off-1);
-
-                long num = strtol(buffer, NULL, 10);
-                frame.offset1 = num;
-            }
-            frame.instr |= (ams<<10);
-
-            off = 0;
-            offset = re_match("R",instructionTokens[1],&off);
-            reg = *(instructionTokens[1]+offset+1) - '0';
-            frame.instr |= (reg<<6);
-
-            uint8_t amd = getAddressingMode(instructionTokens[2]);
-            if (amd == 3 )
             {
                 off = 0;
                 offset = re_match("\\d+\\(",instructionTokens[2],&off);
@@ -92,13 +75,32 @@ static casmInstructionFrame_t getEncodedInstruction(char** instructionTokens, ui
                 memcpy(buffer, instructionTokens[2] + offset, off-1);
 
                 long num = strtol(buffer, NULL, 10);
+                frame.offset1 = num;
+            }
+            frame.instr |= (ams<<10);
+
+            off = 0;
+            offset = re_match("R",instructionTokens[2],&off);
+            reg = *(instructionTokens[2]+offset+1) - '0';
+            frame.instr |= (reg<<6);
+
+            /*--------------------------- DESTINATION ------------------------------*/
+            uint8_t amd = getAddressingMode(instructionTokens[1]);
+            if (amd == 3 )
+            {
+                off = 0;
+                offset = re_match("\\d+\\(",instructionTokens[1],&off);
+                char buffer[4] = {0};
+                memcpy(buffer, instructionTokens[1] + offset, off-1);
+
+                long num = strtol(buffer, NULL, 10);
                 frame.offset2 = num;
             }
 
             frame.instr |= (amd<<4);
             off = 0;
-            offset = re_match("R",instructionTokens[2],&off);
-            reg = *(instructionTokens[2]+offset+1) - '0';
+            offset = re_match("R",instructionTokens[1],&off);
+            reg = *(instructionTokens[1]+offset+1) - '0';
             frame.instr |= reg;
             break;
 

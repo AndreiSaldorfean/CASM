@@ -53,6 +53,7 @@ typedef struct
 ============================================================================================================ */
 
 void trim_whitespace(char *str);
+void print_binary(uint16_t num);
 
 #ifdef __cplusplus
 }

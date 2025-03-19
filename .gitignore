@@ -60,3 +60,4 @@ tests/build
 *.txt
 *.obj
 *.o
+*.s
