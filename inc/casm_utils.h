@@ -24,6 +24,7 @@ extern "C"{
 #define CASM_DIRECT_AM_RGX ("\\(R")
 #define CASM_INDIRECT_AM_RGX ("^\\(+.+\\)+$")
 #define CASM_INDEXED_AM_RGX ("\\d+\\(+.+\\)+$")
+#define CASM_HELP_MESSAGE ("Usage: casm [-h] [path/to/input/file] [-o] [path/to/ouput/file] \n\nOptions:\n  -h\t\t\tDisplay this help message\n  -o\t\t\tOutputs the binary to an specified file")
 
 /* ============================================================================================================
                                             TYPEDEFS AND STRUCTS

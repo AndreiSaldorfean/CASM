@@ -58,6 +58,7 @@ dkms.conf
 build/
 tests/build
 *.txt
+!help_message.txt
 *.obj
 *.o
 *.s
