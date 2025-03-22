@@ -11,21 +11,22 @@ extern "C"{
                                             DEFINES and ENUMS
 ============================================================================================================ */
 
-#define CASM_B2_MASK (0x8000U)
-#define CASM_B3_MASK (0xC000U)
-#define CASM_B4_MASK (0xE000U)
+#define CASM_B2_MASK  (0x8000U)
+#define CASM_B3_MASK  (0xC000U)
+#define CASM_B4_MASK  (0xE000U)
 #define CASM_ERR_MASK (0xF000U)
+#define CASM_STOP     (0xF001U)
 
 #define CASM_OPPCODE_RGX ("\\w+\\D")
 #define CASM_OPERAND1_RGX ("\\S+,")
-#define CASM_OPERAND2_RGX (",+.+$")
-#define CASM_SINGLE_OPERAND_RGX (" +.+$")
+#define CASM_OPERAND2_RGX (",+.+\\s")
+#define CASM_SINGLE_OPERAND_RGX (" +.+\\s")
 
-#define CASM_IMM_AM_RGX ("[^R]+\\d+$")
-#define CASM_DIRECT_AM_RGX ("\\(R")
+#define CASM_IMM_AM_RGX ("[^Rr]+\\d+$")
+#define CASM_DIRECT_AM_RGX ("\\([Rr]")
 #define CASM_INDIRECT_AM_RGX ("^\\(+.+\\)+$")
 #define CASM_INDEXED_AM_RGX ("\\d+\\(+.+\\)+$")
-#define CASM_HELP_MESSAGE ("Usage: casm [-h] [path/to/input/file] [-o] [path/to/ouput/file] \n\nOptions:\n  -h\t\t\tDisplay this help message\n  -o\t\t\tOutputs the binary to an specified file")
+#define CASM_HELP_MESSAGE ("Usage: casm [OPTIONS]... [path/to/input/file] [-o] [path/to/ouput/file] \n\nOptions:\n  -h\t\t\tDisplay this help message\n  -o\t\t\tOutputs the binary to an specified file\n  -v\t\t\tEnables verbose mode\n")
 
 /* ============================================================================================================
                                             TYPEDEFS AND STRUCTS
@@ -56,7 +57,7 @@ extern uint16_t argIndex;
 
 void trim_whitespace(char *str);
 void print_binary(uint16_t num);
-uint8_t parse_args(int argc, char *argv[]);
+void regex_wrapper(const char* pattern, const char* str);
 
 #ifdef __cplusplus
 }

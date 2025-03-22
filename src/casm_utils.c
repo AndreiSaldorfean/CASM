@@ -44,27 +44,11 @@ void trim_whitespace(char *str)
 void print_binary(uint16_t num)
 {
     for (int i = sizeof(num) * 8 - 1; i >= 0; i--) {
+        if((i+1) % 4 == 0) putchar(' ');
         putchar((num & (1 << i)) ? '1' : '0');
     }
 }
 
-uint8_t parse_args(int argc, char *argv[])
+void regex_wrapper(const char* pattern, const char* str)
 {
-    for (; argIndex < argc; argIndex++) {
-
-        if (strcmp(argv[argIndex], "-o") == 0) {
-            return 'o';
-
-        }
-        if(strcmp(argv[argIndex], "-h") == 0) {
-            return 'h';
-        }
-
-        else {
-            fprintf(stderr, "Error: Unrecognized option %s\n", argv[argIndex]);
-            return 1;
-        }
-    }
-
-    return -1;
 }

@@ -38,7 +38,7 @@ static void casmInsertDict(uint16_t key,const char* value)
 void casmInitDict(void)
 {
     h = kh_init(PROGRAM);
-    for(int i = 0; i < CASM_DICT_SIZE; i++) {
+    for(uint16_t i = 0; i < CASM_DICT_SIZE; i++) {
         casmInsertDict(gInstructionsTable[i].opcode,gInstructionsTable[i].name);
     }
 }

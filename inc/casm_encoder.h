@@ -33,8 +33,8 @@ extern "C"
                                             Global functions
 ============================================================================================================ */
 
-uint16_t getInstructionType(const char* inst);
-casmInstructionFrame_t encodeInstruction(const char* inst,uint16_t oppcode);
+uint16_t getInstructionType(char* inst);
+casmInstructionFrame_t encodeInstruction(const char* inst,uint16_t oppcode, int* instrLen);
 
 #ifdef __cplusplus
 }
