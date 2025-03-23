@@ -5,6 +5,7 @@
 #include "casm_utils.h"
 #include "casm_encoder.h"
 #include "getopt.h"
+#include "casm_preprocessor.h"
 
 uint8_t debugEnabled = 0;
 
@@ -16,6 +17,7 @@ int main(int argc, char **argv)
     char output_file[30] = {0};
     char instBuffer[30] = {0};
     char buffer0[500] = {0};
+    char processedFile[500] = {0};
     uint16_t buffer1[200] = {0};
     uint32_t size = 0;
     int instrLen = 0;
@@ -32,6 +34,7 @@ int main(int argc, char **argv)
     {
        fpInput = fopen(argv[1],"rb");
        fread(buffer0,1,500,fpInput);
+       preprocessFile(buffer0, processedFile);
        optind = 2;
     }
 
@@ -50,7 +53,7 @@ int main(int argc, char **argv)
         }
     }
 
-    while ((opt = getopt(argc, argv,"vho:")) != -1)
+    while ((opt = getopt(argc, argv,"Pvho:")) != -1)
     {
         switch (opt)
         {
@@ -69,6 +72,10 @@ int main(int argc, char **argv)
             case 'v':
                 debugEnabled = 1;
                 break;
+            case 'P':
+                printf("Preprocessed File:\n");
+                printf("%s",processedFile);
+                break;
             case '?':
                 casmDestroyDict();
                 return 1;
@@ -78,7 +85,7 @@ int main(int argc, char **argv)
 
     while(1)
     {
-        uint16_t instructionType = getInstructionType(buffer0+instrLen);
+        uint16_t instructionType = getInstructionType(processedFile+instrLen);
         if(instructionType == CASM_STOP)
         {
             printf("\nTotal size: %d bytes\n",size*2);
@@ -91,7 +98,7 @@ int main(int argc, char **argv)
             break;
         }
         int prevLen = instrLen;
-        casmInstructionFrame_t instr = encodeInstruction(buffer0,instructionType, &instrLen);
+        casmInstructionFrame_t instr = encodeInstruction(processedFile,instructionType, &instrLen);
 
         if(instr.instr != 0)
         {
@@ -102,7 +109,7 @@ int main(int argc, char **argv)
                 printf("0x%X\t",size*2);
                 print_binary(instr.instr);
                 char buffer2[30] = {0};
-                memcpy(buffer2,buffer0+prevLen,instrLen-prevLen);
+                memcpy(buffer2,processedFile+prevLen,instrLen-prevLen);
                 printf("\t0x%X\t%s",instr.instr,buffer2);
             }
             size++;
