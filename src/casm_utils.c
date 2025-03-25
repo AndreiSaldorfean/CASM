@@ -48,7 +48,3 @@ void print_binary(uint16_t num)
         putchar((num & (1 << i)) ? '1' : '0');
     }
 }
-
-void regex_wrapper(const char* pattern, const char* str)
-{
-}

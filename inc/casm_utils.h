@@ -11,7 +11,7 @@ extern "C"{
                                             DEFINES and ENUMS
 ============================================================================================================ */
 
-#define CASM_B2_MASK  (0x8000U)
+#define CASM_B2_MASK  (0xA000U)
 #define CASM_B3_MASK  (0xC000U)
 #define CASM_B4_MASK  (0xE000U)
 #define CASM_ERR_MASK (0xF000U)
@@ -26,7 +26,7 @@ extern "C"{
 #define CASM_DIRECT_AM_RGX ("\\([Rr]")
 #define CASM_INDIRECT_AM_RGX ("^\\(+.+\\)+$")
 #define CASM_INDEXED_AM_RGX ("\\d+\\(+.+\\)+$")
-#define CASM_HELP_MESSAGE ("Usage: casm [OPTIONS]... [path/to/input/file] [-o] [path/to/ouput/file] \n\nOptions:\n  -h\t\t\tDisplay this help message\n  -o\t\t\tOutputs the binary to an specified file\n  -v\t\t\tEnables verbose mode\n")
+#define CASM_HELP_MESSAGE ("Usage: casm [OPTIONS]... [path/to/input/file] [-o] [path/to/ouput/file] \n\nOptions:\n  -h\t\t\tDisplay this help message\n  -o\t\t\tOutputs the binary to an specified file\n  -v\t\t\tEnables verbose mode\n  -P\t\t\tShow preprocessed file\n")
 
 /* ============================================================================================================
                                             TYPEDEFS AND STRUCTS
@@ -57,7 +57,6 @@ extern uint16_t argIndex;
 
 void trim_whitespace(char *str);
 void print_binary(uint16_t num);
-void regex_wrapper(const char* pattern, const char* str);
 
 #ifdef __cplusplus
 }

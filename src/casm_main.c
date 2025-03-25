@@ -106,9 +106,9 @@ int main(int argc, char **argv)
 
             if(debugEnabled)
             {
+                char buffer2[30] = {0};
                 printf("0x%X\t",size*2);
                 print_binary(instr.instr);
-                char buffer2[30] = {0};
                 memcpy(buffer2,processedFile+prevLen,instrLen-prevLen);
                 printf("\t0x%X\t%s",instr.instr,buffer2);
             }

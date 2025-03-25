@@ -15,6 +15,7 @@
 /* ============================================================================================================
                                             Local Variables
 ============================================================================================================ */
+
 /* ============================================================================================================
                                             Global Variables
 ============================================================================================================ */
@@ -90,46 +91,69 @@ static void removeComments(char* file, char* destination, int* fileSize)
     }
     *fileSize = j;
 }
-/* ============================================================================================================
-                                            Global functions
-============================================================================================================ */
 
-/**
- * TODO:
- * - Rename variables
- * - Add comments
- * - Remove unnecessary variables
- * - Remove unnecessary code
- * - Trim useless newlines
- */
-void preprocessFile(char *buffer, char* preprocessedFile)
+static void procsToLabels(char *file, int* fileSize)
 {
     int len = 0;
     int match = 0;
     int match1 = 0;
     char labelBuffer[50] = {0};
-    int size = strlen(buffer);
 
-    removeComments(buffer,preprocessedFile,&size);
+    // Convert <proc> - <endp> to labels
+    while(1)
+    {
+        match = re_match("proc ",file,&len);
+        if(match == -1)
+        {
+            break;
+        }
+        memcpy(file + match, file + match + len - 1, *fileSize - match);
+        *fileSize -= len - 1;
+        for(int i = match+1; ; i++)
+        {
+            if(file[i] == '\n')
+            {
+                file[i-1] = ':';
+                break;
+            }
+            file[i-1] = file[i];
+        }
+        match = re_match("endp",file,&len);
+        for(int i = match; ; i++)
+        {
+            if(file[i] == '\n')
+            {
+                memcpy(file + match, file + i + 1, *fileSize - i);
+                *fileSize -= i - match;
+                break;
+            }
+        }
+    }
+}
 
-    trimNewLines(preprocessedFile,&size);
+static void labelsToAdresses(char* file, int *fileSize)
+{
+    int len = 0;
+    int match = 0;
+    int match1 = 0;
+    char labelBuffer[50] = {0};
 
     // Replace the labes with their addresses
     while(1)
     {
         int x = 0;
         int y = 0;
-        match1 = re_match("\\S+:",preprocessedFile,&len);
+        match1 = re_match("\\S+:",file,&len);
         if(match1 == -1)
         {
             break;
         }
         x = match1;
-        memcpy(labelBuffer, preprocessedFile + match1, len-1);
-        memcpy(preprocessedFile + match1, preprocessedFile + match1 + len+1, size - match1);
-        size -=len;
+        memcpy(labelBuffer, file + match1, len-1);
+        memcpy(file + match1, file + match1 + len+1, *fileSize - match1);
+        *fileSize -=len;
         int oldMatch = 0;
-        while((match = re_match(labelBuffer, preprocessedFile + oldMatch, &len)) != -1)
+        while((match = re_match(labelBuffer, file + oldMatch, &len)) != -1)
         {
             int direction = 1;
             int ct=0;
@@ -148,12 +172,12 @@ void preprocessFile(char *buffer, char* preprocessedFile)
 
             while(match < y)
             {
-                if(preprocessedFile[match] == '(' && isdigit(preprocessedFile[match-1]))
+                if(file[match] == '(' && isdigit(file[match-1]))
                 {
                     ct++;
                 }
 
-                if(preprocessedFile[match] == '\n')
+                if(file[match] == '\n')
                 {
                     ct++;
                 }
@@ -166,14 +190,28 @@ void preprocessFile(char *buffer, char* preprocessedFile)
 
             int diff = len - len0;
             // Insert number
-            memcpy(preprocessedFile + (oldMatch - 1), asciiNum, len0);
+            memcpy(file + (oldMatch - 1), asciiNum, len0);
 
             // Erase remaning label
-            memcpy(preprocessedFile + (oldMatch + len0 - 1), preprocessedFile + (oldMatch + len0 -1 + diff), size - oldMatch);
-            size -= diff;
+            memcpy(file + (oldMatch + len0 - 1), file + (oldMatch + len0 -1 + diff), *fileSize - oldMatch);
+            *fileSize -= diff;
         }
     }
+}
 
+/* ============================================================================================================
+                                            Global functions
+============================================================================================================ */
 
-    return;
+void preprocessFile(char *buffer, char* preprocessedFile)
+{
+    int size = strlen(buffer);
+
+    removeComments(buffer,preprocessedFile,&size);
+
+    trimNewLines(preprocessedFile,&size);
+
+    procsToLabels(preprocessedFile,&size);
+
+    labelsToAdresses(preprocessedFile,&size);
 }

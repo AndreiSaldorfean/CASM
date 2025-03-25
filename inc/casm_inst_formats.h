@@ -57,21 +57,21 @@ typedef enum
      * SD: Destination Register - 4b
      * OPPCODE | AMD | DR
     */
-    CASM_CLR  = 0x8000, /* 0x800 */
-    CASM_NEG  = 0x8040,
-    CASM_INC  = 0x80C0,
-    CASM_DEC  = 0x8100,
-    CASM_ASL  = 0x8140,
-    CASM_ASR  = 0x81C0,
-    CASM_LSR  = 0x8200,
-    CASM_ROL  = 0x8240,
-    CASM_ROR  = 0x82C0,
-    CASM_RLC  = 0x8300,
-    CASM_RRC  = 0x8340,
-    CASM_JMP  = 0x83C0,
-    CASM_CALL = 0x8400,
-    CASM_PUSH = 0x8440,
-    CASM_POP  = 0x84C0,
+    CASM_CLR  = 0xA000, /* 0x800 */
+    CASM_NEG  = 0xA040,
+    CASM_INC  = 0xA0C0,
+    CASM_DEC  = 0xA100,
+    CASM_ASL  = 0xA140,
+    CASM_ASR  = 0xA1C0,
+    CASM_LSR  = 0xA200,
+    CASM_ROL  = 0xA240,
+    CASM_ROR  = 0xA2C0,
+    CASM_RLC  = 0xA300,
+    CASM_RRC  = 0xA340,
+    CASM_JMP  = 0xA3C0,
+    CASM_CALL = 0xA400,
+    CASM_PUSH = 0xA440,
+    CASM_POP  = 0xA4C0,
     /** B3 INSTRUCTIONS TYPE
      * BR, BNE, BEQ, BPL, BMI, BCS, BCC, BVS, BVC
      * OPCODE: Operation Code - 8b
@@ -88,7 +88,7 @@ typedef enum
     CASM_BVS = 0xC700,
     CASM_BVC = 0xC800,
     /** B4 INSTRUCTIONS TYPE
-     * CLC, CLV, CLZ, CLS, CCC, SEC, SEV, SEZ, SES, SCC, NOP, RET, RTI, HALT,
+     * CLC, CLV, CLZ, CLS, CCC, SEC, SEV, SEZ, SES, SCC, NOP, RET, RETI, HALT,
      * WAIT, PUSHPC, POPPC, PUSHF, POPF
      * OPCODE: Operation Code - 16b
      * OPPCODE
@@ -105,7 +105,7 @@ typedef enum
     CASM_SCC,
     CASM_NOP,
     CSAM_RET,
-    CASM_RTI,
+    CASM_RETI,
     CASM_HALT,
     CASM_WAIT,
     CASM_PUSHPC,
@@ -212,7 +212,7 @@ casm_instLookUpTable_t gInstructionsTable[] = {
     {   "SCC",      CASM_SCC    },
     {   "NOP",      CASM_NOP    },
     {   "RET",      CSAM_RET    },
-    {   "RTI",      CASM_RTI    },
+    {   "RETI",     CASM_RETI   },
     {   "HALT",     CASM_HALT   },
     {   "WAIT",     CASM_WAIT   },
     {   "PUSHPC",   CASM_PUSHPC },
