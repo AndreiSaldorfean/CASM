@@ -24,25 +24,30 @@
                                             Local functions
 ============================================================================================================ */
 
-static void trimNewLines(char* file, int* fileSize)
+static void trimWhiteSpaces(char* file, int* fileSize)
 {
     char buffer[500] = {0};
     int j = 0;
     int i = 0;
+    while(file[i] == '\n')i++;
 
     // Trim the newlines
-    for(i = 0; i < *fileSize; i++)
+    for(; i < *fileSize; i++)
     {
         if(
+            (file[i] == '\n' && i == 0) ||
+            // (file[i] == '\n' && file[i-1] == '\n') ||
             (file[i] == '\n' && file[i+1] == '\n') ||
             (file[i] == ' '  && file[i+1] == ' ')  ||
-            (file[i] == ' ' && file[i+1] == '\n')
+            (file[i] == ' ' && file[i+1] == '\n')  ||
+            (file[i] == ' ' && file[i-1] == ' ')
         )
         {
             continue;
         }
         buffer[j++] = file[i];
     }
+
     *fileSize = j;
     memcpy(file, buffer, j+1);
 }
@@ -209,7 +214,7 @@ void preprocessFile(char *buffer, char* preprocessedFile)
 
     removeComments(buffer,preprocessedFile,&size);
 
-    trimNewLines(preprocessedFile,&size);
+    trimWhiteSpaces(preprocessedFile,&size);
 
     procsToLabels(preprocessedFile,&size);
 
