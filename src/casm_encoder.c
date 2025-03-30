@@ -23,7 +23,7 @@
 /* ============================================================================================================
                                             Global Variables
 ============================================================================================================ */
-int gIndex = 0;
+
 /* ============================================================================================================
                                             Local functions
 ============================================================================================================ */
@@ -201,25 +201,25 @@ casmInstructionFrame_t encodeInstruction(const char* inst,uint16_t type, int* in
     switch(type){
         case 0:
             {
-                tokenizeInstructionTypeB1(inst,ptr,instrLen);
+                tokenizeInstructionTypeB1(inst,ptr);
                 frame = getEncodedInstruction(ptr, 0);
             }
             break;
         case CASM_B2_MASK:
             {
-                tokenizeInstructionTypeB2(inst,ptr,instrLen);
+                tokenizeInstructionTypeB2(inst,ptr);
                 frame = getEncodedInstruction(ptr, CASM_B2_MASK);
             }
             break;
         case CASM_B3_MASK:
             {
-                tokenizeInstructionTypeB3(inst,ptr,instrLen);
+                tokenizeInstructionTypeB3(inst,ptr);
                 frame = getEncodedInstruction(ptr, CASM_B3_MASK);
             }
             break;
         case CASM_B4_MASK:
             {
-                tokenizeInstructionTypeB4(inst,ptr,instrLen);
+                tokenizeInstructionTypeB4(inst,ptr);
                 frame = getEncodedInstruction(ptr, CASM_B4_MASK);
             }
             break;

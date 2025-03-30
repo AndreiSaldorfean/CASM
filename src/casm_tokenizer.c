@@ -19,83 +19,67 @@
 /* ============================================================================================================
                                             Global Variables
 ============================================================================================================ */
-extern int gIndex;
+
 /* ============================================================================================================
                                             Local functions
 ============================================================================================================ */
 
-CASM_STATIC int tokenize(const char* str ,char delimiter)
+CASM_STATIC int find(const char* str ,char delimiter)
 {
-    int i=gIndex;
-    for(; str[gIndex]; gIndex++)
+    int i = 0;
+    for(; str[i]; i++)
     {
-        if(str[gIndex] == delimiter)
+        if(str[i] == delimiter)
         {
-            gIndex++;
-            return gIndex - i - 1;
+            i++;
+            return i - 1;
         }
     }
-    return -1;
+    return i;
 }
 
 /* ============================================================================================================
                                             Global functions
 ============================================================================================================ */
 
-void tokenizeInstructionTypeB1(const char* inst, char** destination, int* instrLen) {
-    int prevIndex = gIndex;
-    int len = tokenize(inst, ' ');
-    memcpy(destination[0], inst + prevIndex, len);
-    trim_whitespace(destination[0]);
-    destination[0][len+1] = '\0';
+void tokenizeInstructionTypeB1(const char* inst, char** destination) {
+    int prevIndex = 0;
+    int index = find(inst, ' ');
+    memcpy(destination[0], inst, index);
 
-    prevIndex = gIndex;
-    len = tokenize(inst, ',');
-    memcpy(destination[1],inst + prevIndex, len);
+    prevIndex = index + 1;
+    index = find(inst, ',');
+    memcpy(destination[1], inst + prevIndex, index - prevIndex);
     trim_whitespace(destination[1]);
-    destination[1][len+1] = '\0';
 
-    prevIndex = gIndex;
-    len = tokenize(inst, '\n');
-    memcpy(destination[2], inst + prevIndex, len);
+    prevIndex = index;
+    index = find(inst, 0);
+    memcpy(destination[2], inst + prevIndex + 1, index - prevIndex);
     trim_whitespace(destination[2]);
-    destination[2][len+1] = '\0';
-    *instrLen = prevIndex + len + 1;
 }
 
-void tokenizeInstructionTypeB2(const char* inst, char** destination, int* instrLen) {
-    int prevIndex = gIndex;
-    int len = tokenize(inst, ' ');
-    memcpy(destination[0], inst + prevIndex, len);
-    trim_whitespace(destination[0]);
-    destination[0][len+1] = '\0';
+void tokenizeInstructionTypeB2(const char* inst, char** destination) {
+    int prevIndex = 0;
+    int index = find(inst, ' ');
+    memcpy(destination[0], inst, index);
 
-    prevIndex = gIndex;
-    len = tokenize(inst, '\n');
-    memcpy(destination[1], inst + prevIndex, len);
+    prevIndex = index;
+    index = find(inst, 0);
+    memcpy(destination[1], inst + prevIndex, index - prevIndex);
     trim_whitespace(destination[1]);
-    *instrLen = prevIndex + len + 1;
 }
 
-void tokenizeInstructionTypeB3(const char* inst, char** destination, int* instrLen) {
-    int prevIndex = gIndex;
-    int len = tokenize(inst, ' ');
-    memcpy(destination[0], inst + prevIndex, len);
-    destination[0][len+1] = '\0';
-    trim_whitespace(destination[0]);
+void tokenizeInstructionTypeB3(const char* inst, char** destination) {
+    int index = find(inst, ' ');
+    memcpy(destination[0], inst, index);
 
-    prevIndex = gIndex;
-    len = tokenize(inst, '\n');
-    memcpy(destination[1], inst + prevIndex, len);
+    index = find(inst, 0);
+    memcpy(destination[1], inst + index, index - 1);
     trim_whitespace(destination[1]);
-    *instrLen = prevIndex + len + 1;
 }
 
-void tokenizeInstructionTypeB4(const char* inst, char** destination, int* instrLen) {
-    int prevIndex = gIndex;
-    int len = tokenize(inst, '\n');
-    memcpy(destination[0], inst + prevIndex, len);
-    destination[0][len+1] = '\0';
+void tokenizeInstructionTypeB4(const char* inst, char** destination) {
+    int index = find(inst, 0);
+    memcpy(destination[0], inst, index);
     trim_whitespace(destination[0]);
-    *instrLen = prevIndex + len + 1;
 }

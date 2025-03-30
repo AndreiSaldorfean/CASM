@@ -29,10 +29,10 @@ extern "C"{
                                             Global functions
 ============================================================================================================ */
 
-void tokenizeInstructionTypeB1(const char* inst, char** destinatio, int* instrLen);
-void tokenizeInstructionTypeB2(const char* inst, char** destinatio, int* instrLen);
-void tokenizeInstructionTypeB3(const char* inst, char** destinatio, int* instrLen);
-void tokenizeInstructionTypeB4(const char* inst, char** destinatio, int* instrLen);
+void tokenizeInstructionTypeB1(const char* inst, char** destination);
+void tokenizeInstructionTypeB2(const char* inst, char** destination);
+void tokenizeInstructionTypeB3(const char* inst, char** destination);
+void tokenizeInstructionTypeB4(const char* inst, char** destination);
 
 #ifdef __cplusplus
 }
