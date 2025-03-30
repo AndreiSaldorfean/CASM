@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     uint16_t buffer1[200] = {0};
     uint32_t size = 0;
     int instrLen = 0;
-    casmInitDict();
+    casmInitInstructionTable();
 
     if(argc == 1)
     {
@@ -97,6 +97,7 @@ int main(int argc, char **argv)
             fprintf(stderr,"\nError: Invalid instruction encountered: %s\n\nOr no HALT instruction was added at the end of the program!\n", instBuffer);
             break;
         }
+
         int prevLen = instrLen;
         casmInstructionFrame_t instr = encodeInstruction(processedFile,instructionType, &instrLen);
 

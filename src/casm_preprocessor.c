@@ -3,6 +3,8 @@
 #include "re.h"
 #include <string.h>
 #include <ctype.h>
+#include "casm_config.h"
+#include "casm_dict.h"
 
 /* ============================================================================================================
                                             DEFINES and ENUMS
@@ -11,6 +13,11 @@
 /* ============================================================================================================
                                             TYPEDEFS AND STRUCTS
 ============================================================================================================ */
+typedef struct
+{
+    char label[50];
+    int address;
+}casm_symbolTable_t;
 
 /* ============================================================================================================
                                             Local Variables
@@ -19,12 +26,12 @@
 /* ============================================================================================================
                                             Global Variables
 ============================================================================================================ */
-
+casm_symbolTable_t gSymbolTable[20] = { 0 };
 /* ============================================================================================================
                                             Local functions
 ============================================================================================================ */
 
-static void trimWhiteSpaces(char* file, int* fileSize)
+CASM_STATIC void trimWhiteSpaces(char* file, int* fileSize)
 {
     char buffer[500] = {0};
     int j = 0;
@@ -36,7 +43,6 @@ static void trimWhiteSpaces(char* file, int* fileSize)
     {
         if(
             (file[i] == '\n' && i == 0) ||
-            // (file[i] == '\n' && file[i-1] == '\n') ||
             (file[i] == '\n' && file[i+1] == '\n') ||
             (file[i] == ' '  && file[i+1] == ' ')  ||
             (file[i] == ' ' && file[i+1] == '\n')  ||
@@ -52,12 +58,22 @@ static void trimWhiteSpaces(char* file, int* fileSize)
     memcpy(file, buffer, j+1);
 }
 
-static void getAsciiNumber(int number, char* result, int* size) {
+CASM_STATIC void getAsciiNumber(int number, char* result, int* size)
+{
     int digit;
-    char buf[4] = {0};
+    char buf[6] = {0};
     int i = 0;
     int isSigned = 0;
+
+    if (number > 128 || number <= -128) {
+        fprintf(stderr, "Number is too large for signed byte: %d\n", number);
+        *size = 0;
+        return;
+    }
+
     if (number == 0) {
+        result[0] = '0';
+        *size = 1;
         return;
     }
 
@@ -77,10 +93,11 @@ static void getAsciiNumber(int number, char* result, int* size) {
     *size = i;
 }
 
-static void removeComments(char* file, char* destination, int* fileSize)
+CASM_STATIC void removeComments(char* file, int* fileSize)
 {
     int i=0;
     int j=0;
+    char destination[500] = {0};
 
     for(i=0; i < *fileSize; i++)
     {
@@ -90,14 +107,20 @@ static void removeComments(char* file, char* destination, int* fileSize)
             {
                 i++;
             }
+
+            if (file[i-1] == '\n' || file[i+1] == '\n' || j == 0 || destination[j-1] == '\n')
+            {
+                continue;
+            }
         }
 
         destination[j++] = file[i];
     }
     *fileSize = j;
+    memset(file, 0, 500);
+    memcpy(file, destination, j+1);
 }
-
-static void procsToLabels(char *file, int* fileSize)
+CASM_STATIC void procsToLabels(char *file, int* fileSize)
 {
     int len = 0;
     int match = 0;
@@ -129,77 +152,73 @@ static void procsToLabels(char *file, int* fileSize)
             if(file[i] == '\n')
             {
                 memcpy(file + match, file + i + 1, *fileSize - i);
-                *fileSize -= i - match;
+                *fileSize -= i - match + 1;
                 break;
             }
         }
     }
 }
 
-static void labelsToAdresses(char* file, int *fileSize)
+CASM_STATIC void labelsToAdresses(char* file, int* fileSize, casm_program_t* program)
 {
-    int len = 0;
-    int match = 0;
-    int match1 = 0;
-    char labelBuffer[50] = {0};
+    int len          = 0;
+    int symbolIndex  = 0;
+    int programIndex = 0;
+    int labelAddres  = 0;
+    int oldLine      = 0;
+    int prevAddress  = 0;
+    int match        = 0;
 
-    // Replace the labes with their addresses
-    while(1)
+    hSym = kh_init(SYM_TABLE);
+
+    for (int i = 0; file[i]; i++)
     {
-        int x = 0;
-        int y = 0;
-        match1 = re_match("\\S+:",file,&len);
-        if(match1 == -1)
+        if(file[i] == '\n')
         {
-            break;
+            labelAddres++;
+            if (labelAddres == 0)
+            {
+                continue;
+            }
+            program[programIndex].address = prevAddress;
+            memcpy(program[programIndex].instruction, file + oldLine, i - oldLine);
+            prevAddress = labelAddres;
+            oldLine = i + 1;
+            programIndex++;
         }
-        x = match1;
-        memcpy(labelBuffer, file + match1, len-1);
-        memcpy(file + match1, file + match1 + len+1, *fileSize - match1);
-        *fileSize -=len;
-        int oldMatch = 0;
-        while((match = re_match(labelBuffer, file + oldMatch, &len)) != -1)
+        if ( file[i] == '(')
         {
-            int direction = 1;
-            int ct=0;
-            match += oldMatch;
-            oldMatch = match + 1;
-            y = x;
+            labelAddres++;
+        }
+        if(file[i] == ':')
+        {
+            memcpy(gSymbolTable[symbolIndex].label, file + oldLine,  i - oldLine);
+            gSymbolTable[symbolIndex++].address = labelAddres;
+            memcpy(file + oldLine, file + i + 2, *fileSize - i + 2);
+            *fileSize -= i - oldLine + 2;
+        }
+    }
 
-            if ((y - match) < 0)
+    // Add addresses insted of labels
+    for (int i = 0; i < programIndex - 1; i++)
+    {
+        for(int j = 0; j < symbolIndex - 1; j++)
+        {
+            if((match = re_match(gSymbolTable[j].label, program[i].instruction, &len)) != -1)
             {
-                int temp = y;
-                y = match;
-                match = temp;
-                direction = -1;
-                ct++;
-            }
+                char buffer[10] = {0};
+                int size = 0;
+                int relAddress = gSymbolTable[j].address - program[i].address;
 
-            while(match < y)
-            {
-                if(file[match] == '(' && isdigit(file[match-1]))
+                if (program[i].address > gSymbolTable[j].address)
                 {
-                    ct++;
+                    relAddress = gSymbolTable[j].address - program[i].address + 1;
                 }
 
-                if(file[match] == '\n')
-                {
-                    ct++;
-                }
-                match++;
+                getAsciiNumber(relAddress, buffer, &size);
+                memcpy(program[i].instruction + match, buffer, size);
+                program[i].instruction[match + size] = '\0';
             }
-
-            char asciiNum[4] = {0};
-            int len0 = 0;
-            getAsciiNumber(((ct)*direction),asciiNum,&len0);
-
-            int diff = len - len0;
-            // Insert number
-            memcpy(file + (oldMatch - 1), asciiNum, len0);
-
-            // Erase remaning label
-            memcpy(file + (oldMatch + len0 - 1), file + (oldMatch + len0 -1 + diff), *fileSize - oldMatch);
-            *fileSize -= diff;
         }
     }
 }
@@ -208,15 +227,15 @@ static void labelsToAdresses(char* file, int *fileSize)
                                             Global functions
 ============================================================================================================ */
 
-void preprocessFile(char *buffer, char* preprocessedFile)
+void preprocessFile(char *file, casm_program_t* program)
 {
-    int size = strlen(buffer);
+    int size = strlen(file);
 
-    removeComments(buffer,preprocessedFile,&size);
+    removeComments(file,&size);
 
-    trimWhiteSpaces(preprocessedFile,&size);
+    trimWhiteSpaces(file,&size);
 
-    procsToLabels(preprocessedFile,&size);
+    procsToLabels(file,&size);
 
-    labelsToAdresses(preprocessedFile,&size);
+    labelsToAdresses(file, &size, program);
 }

@@ -21,7 +21,7 @@ extern "C"{
  *      ^ This marks that the instruction is of type B1
  *
  *      15 14 13                         0
- *      1  x  x  x x x x x x x x x x x x x
+ *      1  x  1  x x x x x x x x x x x x x
  *      ^ This marks that the instruction is of type B2
  *
  *      15 14 13                         0
@@ -141,6 +141,82 @@ typedef enum
     CASM_REG15,
 }casm_registers_t;
 
+#define INTRUCTIONS_TABLE_VALUES   \
+    {   "MOV",      CASM_MOV    }, \
+    {   "ADD",      CASM_ADD    }, \
+    {   "SUB",      CASM_SUB    }, \
+    {   "CMP",      CASM_CMP    }, \
+    {   "AND",      CASM_AND    }, \
+    {   "OR",       CASM_OR     }, \
+    {   "XOR",      CASM_XOR    }, \
+    {   "CLR",      CASM_CLR    }, \
+    {   "NEG",      CASM_NEG    }, \
+    {   "INC",      CASM_INC    }, \
+    {   "DEC",      CASM_DEC    }, \
+    {   "ASL",      CASM_ASL    }, \
+    {   "ASR",      CASM_ASR    }, \
+    {   "LSR",      CASM_LSR    }, \
+    {   "ROL",      CASM_ROL    }, \
+    {   "ROR",      CASM_ROR    }, \
+    {   "RLC",      CASM_RLC    }, \
+    {   "RRC",      CASM_RRC    }, \
+    {   "JMP",      CASM_JMP    }, \
+    {   "CALL",     CASM_CALL   }, \
+    {   "PUSH",     CASM_PUSH   }, \
+    {   "POP",      CASM_POP    }, \
+    {   "BR",       CASM_BR     }, \
+    {   "BNE",      CASM_BNE    }, \
+    {   "BEQ",      CASM_BEQ    }, \
+    {   "BPL",      CASM_BPL    }, \
+    {   "BMI",      CASM_BMI    }, \
+    {   "BCS",      CASM_BCS    }, \
+    {   "BCC",      CASM_BCC    }, \
+    {   "BVS",      CASM_BVS    }, \
+    {   "BVC",      CASM_BVC    }, \
+    {   "CLC",      CASM_CLC    }, \
+    {   "CLV",      CASM_CLV    }, \
+    {   "CLZ",      CASM_CLZ    }, \
+    {   "CLS",      CASM_CLS    }, \
+    {   "CCC",      CASM_CCC    }, \
+    {   "SEC",      CASM_SEC    }, \
+    {   "SEV",      CASM_SEV    }, \
+    {   "SEZ",      CASM_SEZ    }, \
+    {   "SES",      CASM_SES    }, \
+    {   "SCC",      CASM_SCC    }, \
+    {   "NOP",      CASM_NOP    }, \
+    {   "RET",      CSAM_RET    }, \
+    {   "RETI",     CASM_RETI   }, \
+    {   "HALT",     CASM_HALT   }, \
+    {   "WAIT",     CASM_WAIT   }, \
+    {   "PUSHPC",   CASM_PUSHPC }, \
+    {   "POPPC",    CASM_POPPC  }, \
+    {   "PUSHF",    CASM_PUSHF  }, \
+    {   "POPF",     CASM_POPF   }, \
+
+#define ADDRESSING_TABLE_VALUES \
+    /* Handled differently */   \
+    { "", CASM_IMM },           \
+    { "()", CASM_DA },          \
+    { "IA", CASM_IA },          \
+    { "XA", CASM_XA },          \
+
+#define REGISTER_TABLE_VALUES  \
+    { "R0",     CASM_REG0   }, \
+    { "R1",     CASM_REG1   }, \
+    { "R2",     CASM_REG2   }, \
+    { "R3",     CASM_REG3   }, \
+    { "R4",     CASM_REG4   }, \
+    { "R5",     CASM_REG5   }, \
+    { "R6",     CASM_REG6   }, \
+    { "R7",     CASM_REG7   }, \
+    { "R8",     CASM_REG8   }, \
+    { "R9",     CASM_REG9   }, \
+    { "R10",    CASM_REG10  }, \
+    { "R11",    CASM_REG11  }, \
+    { "R12",    CASM_REG12  }, \
+    { "R14",    CASM_REG14  }, \
+    { "R15",    CASM_REG15  }, \
+
 /* ============================================================================================================
                                             TYPEDEFS AND STRUCTS
 ============================================================================================================ */
@@ -168,84 +244,9 @@ typedef struct{
                                             Global Variables
 ============================================================================================================ */
 
-casm_instLookUpTable_t gInstructionsTable[] = {
-    {   "MOV",      CASM_MOV    },
-    {   "ADD",      CASM_ADD    },
-    {   "SUB",      CASM_SUB    },
-    {   "CMP",      CASM_CMP    },
-    {   "AND",      CASM_AND    },
-    {   "OR",       CASM_OR     },
-    {   "XOR",      CASM_XOR    },
-    {   "CLR",      CASM_CLR    },
-    {   "NEG",      CASM_NEG    },
-    {   "INC",      CASM_INC    },
-    {   "DEC",      CASM_DEC    },
-    {   "ASL",      CASM_ASL    },
-    {   "ASR",      CASM_ASR    },
-    {   "LSR",      CASM_LSR    },
-    {   "ROL",      CASM_ROL    },
-    {   "ROR",      CASM_ROR    },
-    {   "RLC",      CASM_RLC    },
-    {   "RRC",      CASM_RRC    },
-    {   "JMP",      CASM_JMP    },
-    {   "CALL",     CASM_CALL   },
-    {   "PUSH",     CASM_PUSH   },
-    {   "POP",      CASM_POP    },
-    {   "BR",       CASM_BR     },
-    {   "BNE",      CASM_BNE    },
-    {   "BEQ",      CASM_BEQ    },
-    {   "BPL",      CASM_BPL    },
-    {   "BMI",      CASM_BMI    },
-    {   "BCS",      CASM_BCS    },
-    {   "BCC",      CASM_BCC    },
-    {   "BVS",      CASM_BVS    },
-    {   "BVC",      CASM_BVC    },
-    {   "CLC",      CASM_CLC    },
-    {   "CLV",      CASM_CLV    },
-    {   "CLZ",      CASM_CLZ    },
-    {   "CLS",      CASM_CLS    },
-    {   "CCC",      CASM_CCC    },
-    {   "SEC",      CASM_SEC    },
-    {   "SEV",      CASM_SEV    },
-    {   "SEZ",      CASM_SEZ    },
-    {   "SES",      CASM_SES    },
-    {   "SCC",      CASM_SCC    },
-    {   "NOP",      CASM_NOP    },
-    {   "RET",      CSAM_RET    },
-    {   "RETI",     CASM_RETI   },
-    {   "HALT",     CASM_HALT   },
-    {   "WAIT",     CASM_WAIT   },
-    {   "PUSHPC",   CASM_PUSHPC },
-    {   "POPPC",    CASM_POPPC  },
-    {   "PUSHF",    CASM_PUSHF  },
-    {   "POPF",     CASM_POPF   },
-};
-
-casm_addressingtLookUpTable_t gAddressingTable[] = {
-    /* Handled differently */
-    { "", CASM_IMM },
-    { "()", CASM_DA },
-    { "IA", CASM_IA },
-    { "XA", CASM_XA },
-};
-
-casm_regisertLookUpTable_t gRegisterTable[] = {
-    { "R0",     CASM_REG0   },
-    { "R1",     CASM_REG1   },
-    { "R2",     CASM_REG2   },
-    { "R3",     CASM_REG3   },
-    { "R4",     CASM_REG4   },
-    { "R5",     CASM_REG5   },
-    { "R6",     CASM_REG6   },
-    { "R7",     CASM_REG7   },
-    { "R8",     CASM_REG8   },
-    { "R9",     CASM_REG9   },
-    { "R10",    CASM_REG10  },
-    { "R11",    CASM_REG11  },
-    { "R12",    CASM_REG12  },
-    { "R14",    CASM_REG14  },
-    { "R15",    CASM_REG15  },
-};
+extern casm_instLookUpTable_t gInstructionsTable[];
+extern casm_addressingtLookUpTable_t gAddressingTable[];
+extern casm_regisertLookUpTable_t gRegisterTable[];
 
 /* ============================================================================================================
                                             Local functions
