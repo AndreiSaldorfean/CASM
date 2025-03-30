@@ -3,14 +3,11 @@
 #include "ts_encoder.h"
 #include "ts_preprocessor.h"
 #include "casm_dict.h"
+#include "ts_tokenizer.h"
 
-void setUp(void) {
-    casmInitInstructionTable();
-}
+void setUp(void) { }
 
-void tearDown(void) {
-    casmDestroyDict();
-}
+void tearDown(void) { }
 
 
 int main(){
@@ -23,5 +20,9 @@ int main(){
     RUN_TEST(TS_Preprocessor3);
     RUN_TEST(TS_Preprocessor4);
     RUN_TEST(TS_Preprocessor5);
+    RUN_TEST(TS_Tokenizer1);
+    RUN_TEST(TS_Tokenizer2);
+    RUN_TEST(TS_Tokenizer3);
+    RUN_TEST(TS_Tokenizer4);
     return UNITY_END();
 }
