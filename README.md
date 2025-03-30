@@ -10,3 +10,5 @@ TODO:
   - Parse file as argument x
   - Output the object file x
   - Add error messages to already implemeted functions
+  - Make a symbol table
+  - Maybe use linked lists for better performance

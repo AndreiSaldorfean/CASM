@@ -5,6 +5,7 @@
 #include "re.h"
 #include <stdio.h>
 #include "casm_dict.h"
+#include "casm_config.h"
 
 
 /* ============================================================================================================
@@ -27,7 +28,7 @@ int gIndex = 0;
                                             Local functions
 ============================================================================================================ */
 
-static uint16_t getAddressingMode(const char* reg)
+CASM_STATIC uint16_t getAddressingMode(const char* reg)
 {
     int match_len = 0;
     int match = re_match(CASM_IMM_AM_RGX, reg, &match_len);
@@ -53,7 +54,7 @@ static uint16_t getAddressingMode(const char* reg)
     return 0;
 }
 
-static casmInstructionFrame_t getEncodedInstruction(char** instructionTokens, uint16_t instrType)
+CASM_STATIC casmInstructionFrame_t getEncodedInstruction(char** instructionTokens, uint16_t instrType)
 {
     casmInstructionFrame_t frame = {0};
     int off = 0;
@@ -144,7 +145,7 @@ static casmInstructionFrame_t getEncodedInstruction(char** instructionTokens, ui
             break;
     }
 
-    uint16_t opcode = casmGetDict(instructionTokens[0]);
+    uint16_t opcode = csamGetInstruction(instructionTokens[0]);
     frame.instr |= opcode;
 
     return frame;
@@ -175,7 +176,7 @@ uint16_t getInstructionType(char* inst)
 
     trim_whitespace(buffer);
 
-    switch (casmGetDict(buffer) & CASM_ERR_MASK)
+    switch (csamGetInstruction(buffer) & CASM_ERR_MASK)
     {
         case CASM_B2_MASK:
             return CASM_B2_MASK;

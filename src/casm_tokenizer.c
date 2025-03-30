@@ -2,6 +2,7 @@
 #include <string.h>
 #include "re.h"
 #include "casm_utils.h"
+#include "casm_config.h"
 
 /* ============================================================================================================
                                             DEFINES and ENUMS
@@ -23,7 +24,7 @@ extern int gIndex;
                                             Local functions
 ============================================================================================================ */
 
-static int tokenize(const char* str ,char delimiter)
+CASM_STATIC int tokenize(const char* str ,char delimiter)
 {
     int i=gIndex;
     for(; str[gIndex]; gIndex++)

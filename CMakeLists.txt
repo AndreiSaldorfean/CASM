@@ -41,3 +41,6 @@ add_custom_target(bm
     DEPENDS ${PROJECT_NAME}
     WORKING_DIRECTORY ${CMAKE_PROJECT_DIR}
 )
+if(TESTING)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE TESTING)
+endif()
