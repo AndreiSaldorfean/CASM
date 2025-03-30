@@ -1,8 +1,6 @@
-#include <stdio.h>
-#include "ts_dict.h"
-#include "casm_dict.h"
-#include "unity.h"
-#include "casm_inst_formats.h"
+/**
+ * Includes
+*/
 
 /* ============================================================================================================
                                             DEFINES and ENUMS
@@ -27,9 +25,3 @@
 /* ============================================================================================================
                                             Global functions
 ============================================================================================================ */
-
-void IT_testAllCodes(void) {
-    for(int i=0;i<CASM_DICT_SIZE;i++){
-        TEST_ASSERT_NOT_EQUAL(kh_end(hIns),csamGetInstruction(gInstructionsTable[i].name));
-    }
-}

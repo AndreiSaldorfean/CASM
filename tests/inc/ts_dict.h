@@ -5,10 +5,9 @@
 extern "C"{
 #endif
 
-#include "khash.h"
 #include <stdint.h>
 
-void IT_testAllCodes();
+void TS_Dict0(void);
 
 #ifdef __cplusplus
 }
