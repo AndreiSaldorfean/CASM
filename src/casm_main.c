@@ -7,29 +7,47 @@
 #include "getopt.h"
 #include "casm_preprocessor.h"
 
+/* ============================================================================================================
+                                            DEFINES and ENUMS
+============================================================================================================ */
 #define ADDR_PRINT          "%-3X"
 #define BINARY_INST_PRINT   "|%-22s|"
 #define HEX_INST_PRINT      "%-7X|"
 #define TEXT_INST_PRINT     "%-22s|"
 #define OFFSET_PRINT        "%-22d|"
 #define LABEL_PRINT         "%s"
+/* ============================================================================================================
+                                            TYPEDEFS AND STRUCTS
+============================================================================================================ */
 
-uint8_t debugEnabled = 0;
+/* ============================================================================================================
+                                            Local Variables
+============================================================================================================ */
+static uint8_t debugEnabled = 0;
+/* ============================================================================================================
+                                            Global Variables
+============================================================================================================ */
+
+/* ============================================================================================================
+                                            Local functions
+============================================================================================================ */
+
+/* ============================================================================================================
+                                            Global functions
+============================================================================================================ */
 
 int main(int argc, char **argv)
 {
-    FILE* fpInput = NULL;
-    FILE* fpOutput = NULL;
-    casm_program_t program[100] = {0};
-    int opt;
-    char output_file[30] = {0};
-    char instBuffer[30] = {0};
-    char buffer0[500] = {0};
-    uint16_t buffer1[200] = {0};
-    uint32_t size = 0;
-    int instrLen = 0;
-    char binary[20] = {0};
-    int programSize = 0;
+    FILE* fpInput   = NULL;
+    FILE* fpOutput  = NULL;
+    casm_program_t program[300]     = {0};
+    char binaryInstruction[22]      = {0};
+    uint16_t objectFile[200]        = {0};
+    char asmFile[500]               = {0};
+    uint32_t programWriteIndex      = 0;
+    int programLen                  = 0;
+    int opt                         = 0;
+
     casmInitInstructionTable();
 
     if(argc == 1)
@@ -42,20 +60,21 @@ int main(int argc, char **argv)
     if((argc == 2 || argc >= 3) && (argv[1][0] != '-'))
     {
        fpInput = fopen(argv[1],"rb");
-       fread(buffer0,1,500,fpInput);
-       preprocessFile(buffer0, program, &programSize);
+       fread(asmFile,1,500,fpInput);
+       preprocessFile(asmFile, program, &programLen);
        optind = 2;
     }
 
     if(argc == 2 && (argv[1][0] != '-'))
     {
+        char objectFileName[30] = {0};
         int len = 0;
         re_match("^\\S+\\.",argv[1],&len);
-        memcpy(output_file,argv[1],len-1);
-        memcpy(output_file + len - 1,".obj",4);
-        output_file[len + 3] = '\0';
+        memcpy(objectFileName,argv[1],len-1);
+        memcpy(objectFileName + len - 1,".obj",4);
+        objectFileName[len + 3] = '\0';
 
-        fpOutput = fopen(output_file,"wb");
+        fpOutput = fopen(objectFileName,"wb");
         if (fpOutput == NULL) {
             fprintf(stderr,"Error opening file\n");
             return 1;
@@ -94,15 +113,19 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("\033[1;37m%-5s|%-22s|%s|%-23s|%s\e[0m\n","Addr"," Binary Inst", " Hex Inst "," Text Inst"," Labels");
-    for(int i = 0; i < programSize; i++)
+    if(debugEnabled)
+    {
+        printf("\033[1;37m%-5s|%-22s|%s|%-23s|%s\e[0m\n","Addr"," Binary Inst", " Hex Inst "," Text Inst"," Labels");
+    }
+
+    for(int i = 0; i < programLen; i++)
     {
         char* instruction = program[i].instruction;
 
         uint16_t instructionType = getInstructionType(instruction);
         if(instructionType == CASM_ERR_MASK)
         {
-            fprintf(stderr,"\n\033[0;31mError: Invalid instruction encountered: %s\e[0m\n\nOr no HALT instruction was added at the end of the program!\n", instBuffer);
+            fprintf(stderr,"\n\033[0;31mError: Invalid instruction encountered: %s\e[0m\n\nOr no HALT instruction was added at the end of the program!\n", instruction);
             break;
         }
 
@@ -110,7 +133,7 @@ int main(int argc, char **argv)
 
         if(instr.instr != 0)
         {
-            memcpy(buffer1+size,&instr.instr,2);
+            memcpy(objectFile+programWriteIndex,&instr.instr,2);
 
             if(debugEnabled)
             {
@@ -120,7 +143,7 @@ int main(int argc, char **argv)
                     if(gSymbolTable[j].address == program[i].address)
                     {
                         ok = 1;
-                        get_binary_num(instr.instr, binary);
+                        get_binary_num(instr.instr, binaryInstruction);
 
                         printf(
                             "\e[0;35m0x"ADDR_PRINT"\e[0m" \
@@ -128,7 +151,7 @@ int main(int argc, char **argv)
                             " 0x"HEX_INST_PRINT" "TEXT_INST_PRINT
                             "\e[0;35m "LABEL_PRINT":\e[0m\n",
                             program[i].address,
-                            binary,
+                            binaryInstruction,
                             instr.instr,
                             instruction,
                             gSymbolTable[j].label
@@ -139,7 +162,7 @@ int main(int argc, char **argv)
 
                 if(ok == 0)
                 {
-                    get_binary_num(instr.instr, binary);
+                    get_binary_num(instr.instr, binaryInstruction);
                     if(program[i].label[0] != 0)
                     {
                         printf(
@@ -147,7 +170,7 @@ int main(int argc, char **argv)
                             " 0x"HEX_INST_PRINT" "TEXT_INST_PRINT
                             "\033[0;90m "LABEL_PRINT"\e[0m\n",
                             program[i].address,
-                            binary,
+                            binaryInstruction,
                             instr.instr,
                             instruction,
                             program[i].label
@@ -159,58 +182,58 @@ int main(int argc, char **argv)
                             "0x"ADDR_PRINT BINARY_INST_PRINT
                             " 0x"HEX_INST_PRINT" "TEXT_INST_PRINT"\n",
                             program[i].address,
-                            binary,
+                            binaryInstruction,
                             instr.instr,
                             instruction
                         );
                     }
                 }
             }
-            size++;
+            programWriteIndex++;
         }
         if(instr.offset1 != 0)
         {
-            memcpy(buffer1+size,&instr.offset1,2);
+            memcpy(objectFile+programWriteIndex,&instr.offset1,2);
 
             if (debugEnabled)
             {
-                get_binary_num(instr.offset1, binary);
+                get_binary_num(instr.offset1, binaryInstruction);
 
                 printf(
                     "0x"ADDR_PRINT BINARY_INST_PRINT
                     " 0x"HEX_INST_PRINT" "OFFSET_PRINT"\n",
                     (program[i].address + 2),
-                    binary,
+                    binaryInstruction,
                     instr.offset1,
                     instr.offset1
 );
             }
-            size++;
+            programWriteIndex++;
         }
         if(instr.offset2 != 0)
         {
-            memcpy(buffer1+size,&instr.offset2,2);
+            memcpy(objectFile+programWriteIndex,&instr.offset2,2);
 
             if (debugEnabled)
             {
-                get_binary_num(instr.offset2, binary);
+                get_binary_num(instr.offset2, binaryInstruction);
 
                 printf(
                     "0x"ADDR_PRINT BINARY_INST_PRINT
                     " 0x"HEX_INST_PRINT" "OFFSET_PRINT"\n",
                     (program[i].address + 4),
-                    binary,
+                    binaryInstruction,
                     instr.offset2,
                     instr.offset2
                 );
             }
-            size++;
+            programWriteIndex++;
         }
 
     }
 
-    printf("\nTotal size: %d bytes\n",size*2);
-    fwrite(buffer1,1,size*2+1,fpOutput);
+    printf("Total size: %d bytes\n",programWriteIndex*2);
+    fwrite(objectFile,1,programWriteIndex*2+1,fpOutput);
 
     if(fpOutput)
     {

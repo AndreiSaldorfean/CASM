@@ -59,7 +59,6 @@ CASM_STATIC void trimWhiteSpaces(char* file, int* fileSize)
 CASM_STATIC void getAsciiNumber(int number, char* result, int* size)
 {
     int digit;
-    char buf[6] = {0};
     int i = 0;
     int isSigned = 0;
 
@@ -118,12 +117,11 @@ CASM_STATIC void removeComments(char* file, int* fileSize)
     memset(file, 0, 500);
     memcpy(file, destination, j+1);
 }
+
 CASM_STATIC void procsToLabels(char *file, int* fileSize)
 {
     int len = 0;
     int match = 0;
-    int match1 = 0;
-    char labelBuffer[50] = {0};
 
     // Convert <proc> - <endp> to labels
     while(1)
@@ -216,7 +214,7 @@ CASM_STATIC void labelsToAdresses(char* file, int* fileSize, casm_program_t* pro
                 int type = getInstructionType(oppcode);
                 if((type & CASM_B2_MASK) == CASM_B2_MASK)
                 {
-                    relAddress = gSymbolTable[i].address + START_ADDR;
+                    relAddress = gSymbolTable[j].address + START_ADDR;
                 }
                 else
                 {

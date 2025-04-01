@@ -18,13 +18,11 @@
 /* ============================================================================================================
                                             Global Variables
 ============================================================================================================ */
-
 khash_t(INST_TABLE) *hIns = NULL;
 khash_t(SYM_TABLE)  *hSym  = NULL;
 casm_addressingtLookUpTable_t gAddressingTable[] = { ADDRESSING_TABLE_VALUES };
 casm_instLookUpTable_t gInstructionsTable[]      = { INTRUCTIONS_TABLE_VALUES };
 casm_regisertLookUpTable_t gRegisterTable[]      = { REGISTER_TABLE_VALUES };
-
 /* ============================================================================================================
                                             Local functions
 ============================================================================================================ */
