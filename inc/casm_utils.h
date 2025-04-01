@@ -27,7 +27,7 @@ extern "C"{
 #define CASM_DIRECT_AM_RGX ("\\[[Rr]")
 #define CASM_INDIRECT_AM_RGX ("^\\[+.+\\]+$")
 #define CASM_INDEXED_AM_RGX ("\\d+\\[+.+\\]+$")
-#define CASM_HELP_MESSAGE ("Usage: casm [OPTIONS]... [path/to/input/file] [-o] [path/to/ouput/file] \n\nOptions:\n  -h\t\t\tDisplay this help message\n  -o\t\t\tOutputs the binary to an specified file\n  -v\t\t\tEnables verbose mode\n  -S\t\t\tPrint symbol table\n")
+#define CASM_HELP_MESSAGE ("Usage: casm [OPTIONS]... [path/to/asm/file] [-o] [path/to/obj/file] \n\nOptions:\n  -h\t\t\tDisplay this help message\n  -o\t\t\tOutputs the object code to a specified file\n  -v\t\t\tEnables verbose mode\n  -S\t\t\tPrint symbol table\n\nExamples:\n  casm main.s\n  casm -v -S input.asm\n  casm main.s -o output.obj\n\n")
 
 /* ============================================================================================================
                                             TYPEDEFS AND STRUCTS
