@@ -25,34 +25,33 @@ static char* expectedResult2[200] =
 };
 static casm_program_t expectedResult3[200] =
 {
-    // "jmp 2\nret\njmp 2\nret\njmp -4\nret\n",
     {
-        .instruction = "jmp 5",
+        .instruction = "jmp 6",
         .address = 0
     },
     {
-        .instruction = "mov (r1),(r2)",
-        .address = 1
+        .instruction = "mov [r1],[r2]",
+        .address = 2
     },
     {
         .instruction = "ret",
         .address = 4
     },
     {
-        .instruction = "jmp 2",
-        .address = 5
-    },
-    {
-        .instruction = "ret",
+        .instruction = "jmp 4",
         .address = 6
-    },
-    {
-        .instruction = "jmp -6",
-        .address = 7
     },
     {
         .instruction = "ret",
         .address = 8
+    },
+    {
+        .instruction = "jmp -10",
+        .address = 10
+    },
+    {
+        .instruction = "ret",
+        .address = 12
     },
 };
 /* ============================================================================================================
@@ -70,7 +69,7 @@ extern void trimWhiteSpaces(char* file, int* fileSize);
 extern void getAsciiNumber(int number, char* result, int* size);
 extern void removeComments(char* file,int* fileSize);
 extern void procsToLabels(char *file, int* fileSize);
-extern void labelsToAdresses(char* file, int *fileSize, casm_program_t* program);
+extern void labelsToAdresses(char* file, int *fileSize, casm_program_t* program, int* programSize);
 
 /**
  * @brief Test trim white spaces function
@@ -327,10 +326,11 @@ void TS_Preprocessor4(void)
             continue;
         }
 
-        labelsToAdresses(fileContents,&size,program);
-        for(int i = 0; i < program[i].instruction[0]; i++)
+        int programSize = 0;
+        labelsToAdresses(fileContents,&size,program, &programSize);
+        for(int i = 0; i < programSize; i++)
         {
-            for(int j=0; j < strlen(expectedResult3[i].instruction); j++)
+            for(int j=0; expectedResult3[i].instruction[j]; j++)
             {
                 TEST_ASSERT_EQUAL(expectedResult3[i].instruction[j],program[i].instruction[j]);
             }
@@ -358,6 +358,7 @@ void TS_Preprocessor5(void)
     char filePath[100] = {0};
     char destination[500] = {0};
     int j = 0;
+    int programSize = 0;
     casm_program_t program[200] = {0};
 
     if (!dir) {
@@ -383,8 +384,8 @@ void TS_Preprocessor5(void)
             continue;
         }
 
-        preprocessFile(fileContents, program);
-        for(int i = 0; i < program[i].instruction[0]; i++)
+        preprocessFile(fileContents, program, &programSize);
+        for(int i = 0; i < programSize; i++)
         {
             for(int j=0; j < strlen(expectedResult3[i].instruction); j++)
             {

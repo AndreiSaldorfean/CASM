@@ -70,7 +70,7 @@ CASM_STATIC casmInstructionFrame_t getEncodedInstruction(char** instructionToken
             if (ams == 3)
             {
                 off = 0;
-                offset = re_match("\\d+\\(",instructionTokens[2],&off);
+                offset = re_match("\\d+\\[",instructionTokens[2],&off);
                 char buffer[4] = {0};
                 memcpy(buffer, instructionTokens[2] + offset, off-1);
 
@@ -89,7 +89,7 @@ CASM_STATIC casmInstructionFrame_t getEncodedInstruction(char** instructionToken
             if (amd == 3 )
             {
                 off = 0;
-                offset = re_match("\\d+\\(",instructionTokens[1],&off);
+                offset = re_match("\\d+\\[",instructionTokens[1],&off);
                 char buffer[4] = {0};
                 memcpy(buffer, instructionTokens[1] + offset, off-1);
 
@@ -112,7 +112,7 @@ CASM_STATIC casmInstructionFrame_t getEncodedInstruction(char** instructionToken
             if (amd == 3 )
             {
                 off = 0;
-                offset = re_match("\\d+\\(",instructionTokens[1],&off);
+                offset = re_match("\\d+\\[",instructionTokens[1],&off);
                 char buffer[4] = {0};
                 memcpy(buffer, instructionTokens[1] + offset, off-1);
 
@@ -166,11 +166,6 @@ uint16_t getInstructionType(char* inst)
     int match = re_match(CASM_OPPCODE_RGX, inst, &size);
     char buffer[7] = {0};
 
-    if(inst[0] == '\n' || inst[0] == '\0')
-    {
-        return CASM_STOP;
-    }
-
     memcpy(buffer, inst + match, size);
     buffer[size] = '\0';
 
@@ -192,7 +187,7 @@ uint16_t getInstructionType(char* inst)
 
 }
 
-casmInstructionFrame_t encodeInstruction(const char* inst,uint16_t type, int* instrLen)
+casmInstructionFrame_t encodeInstruction(const char* inst,uint16_t type)
 {
     char buffer[3][20] = {0};
     char* ptr[3] = {buffer[0],buffer[1],buffer[2]};

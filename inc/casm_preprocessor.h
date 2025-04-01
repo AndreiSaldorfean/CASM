@@ -21,7 +21,14 @@ typedef struct
 {
     char instruction[20];
     int address;
+    char label[30];
 }casm_program_t;
+
+typedef struct
+{
+    char label[50];
+    int address;
+}casm_symbolTable_t;
 /* ============================================================================================================
                                             Local Variables
 ============================================================================================================ */
@@ -30,6 +37,7 @@ typedef struct
                                             Global Variables
 ============================================================================================================ */
 
+extern casm_symbolTable_t gSymbolTable[20];
 /* ============================================================================================================
                                             Local functions
 ============================================================================================================ */
@@ -38,7 +46,7 @@ typedef struct
                                             Global functions
 ============================================================================================================ */
 
-void preprocessFile(char *file, casm_program_t* program);
+void preprocessFile(char *file, casm_program_t* program, int* programSize);
 
 #ifdef __cplusplus
 }

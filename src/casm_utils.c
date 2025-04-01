@@ -41,10 +41,11 @@ void trim_whitespace(char *str)
     str[end - start + 1] = '\0';
 }
 
-void print_binary(uint16_t num)
+void get_binary_num(uint16_t num, char* result)
 {
+    int j=0;
     for (int i = sizeof(num) * 8 - 1; i >= 0; i--) {
-        if((i+1) % 4 == 0) putchar(' ');
-        putchar((num & (1 << i)) ? '1' : '0');
+        if((i+1) % 4 == 0) result[j++] = ' ';
+        result[j++] = (num & (1 << i)) ? '1' : '0';
     }
 }

@@ -1,11 +1,7 @@
-label1:
-jmp label2
-mov (r1),(r2)
+jmp 6
+mov [r1],[r2]
 ret
-label2:
-jmp label3
+jmp 4
 ret
-label3:
-jmp label1
+jmp -10
 ret
-label4:

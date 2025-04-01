@@ -34,7 +34,7 @@ extern "C"
 ============================================================================================================ */
 
 uint16_t getInstructionType(char* inst);
-casmInstructionFrame_t encodeInstruction(const char* inst,uint16_t oppcode, int* instrLen);
+casmInstructionFrame_t encodeInstruction(const char* inst,uint16_t oppcode);
 
 #ifdef __cplusplus
 }

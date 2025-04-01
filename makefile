@@ -4,7 +4,7 @@ all:
 b:
 	cmake --build build -j12
 r:
-	./build/main.exe
+	./build/casm.exe main.s 
 test:
 	rm -rf tests/build
 	cmake -B tests/build -S tests/ -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" -DTESTING=ON

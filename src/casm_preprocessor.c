@@ -5,6 +5,9 @@
 #include <ctype.h>
 #include "casm_config.h"
 #include "casm_dict.h"
+#include "casm_utils.h"
+#include "casm_encoder.h"
+#include <ctype.h>
 
 /* ============================================================================================================
                                             DEFINES and ENUMS
@@ -13,11 +16,6 @@
 /* ============================================================================================================
                                             TYPEDEFS AND STRUCTS
 ============================================================================================================ */
-typedef struct
-{
-    char label[50];
-    int address;
-}casm_symbolTable_t;
 
 /* ============================================================================================================
                                             Local Variables
@@ -159,7 +157,7 @@ CASM_STATIC void procsToLabels(char *file, int* fileSize)
     }
 }
 
-CASM_STATIC void labelsToAdresses(char* file, int* fileSize, casm_program_t* program)
+CASM_STATIC void labelsToAdresses(char* file, int* fileSize, casm_program_t* program, int* programSize)
 {
     int len          = 0;
     int symbolIndex  = 0;
@@ -171,11 +169,11 @@ CASM_STATIC void labelsToAdresses(char* file, int* fileSize, casm_program_t* pro
 
     hSym = kh_init(SYM_TABLE);
 
-    for (int i = 0; file[i]; i++)
+    for (int i = 0; i < *fileSize; i++)
     {
         if(file[i] == '\n')
         {
-            labelAddres++;
+            labelAddres +=2;
             if (labelAddres == 0)
             {
                 continue;
@@ -186,38 +184,52 @@ CASM_STATIC void labelsToAdresses(char* file, int* fileSize, casm_program_t* pro
             oldLine = i + 1;
             programIndex++;
         }
-        if ( file[i] == '(')
+        if ( file[i] == '[' && isdigit(file[i-1]))
         {
-            labelAddres++;
+            labelAddres += 2;
         }
         if(file[i] == ':')
         {
             memcpy(gSymbolTable[symbolIndex].label, file + oldLine,  i - oldLine);
             gSymbolTable[symbolIndex++].address = labelAddres;
-            memcpy(file + oldLine, file + i + 2, *fileSize - i + 2);
-            *fileSize -= i - oldLine + 2;
+            *fileSize -= i - oldLine + 1;
+            memcpy(file + oldLine, file + i + 2, *fileSize);
+            i = oldLine;
         }
     }
-
+    *programSize = programIndex -1;
     // Add addresses insted of labels
-    for (int i = 0; i < programIndex - 1; i++)
+    for (int i = 0; i < *programSize; i++)
     {
-        for(int j = 0; j < symbolIndex - 1; j++)
+        for(int j = 0; j < symbolIndex; j++)
         {
             if((match = re_match(gSymbolTable[j].label, program[i].instruction, &len)) != -1)
             {
                 char buffer[10] = {0};
                 int size = 0;
-                int relAddress = gSymbolTable[j].address - program[i].address;
-
-                if (program[i].address > gSymbolTable[j].address)
+                int relAddress = 0;
+                int labelLen = strlen(gSymbolTable[j].label);
+                int oppcodeLen = 0;
+                char oppcode[10] = {0};
+                re_match(CASM_OPPCODE_RGX,program[i].instruction,&oppcodeLen);
+                memcpy(oppcode, program[i].instruction, oppcodeLen);
+                int type = getInstructionType(oppcode);
+                if((type & CASM_B2_MASK) == CASM_B2_MASK)
                 {
-                    relAddress = gSymbolTable[j].address - program[i].address + 1;
+                    relAddress = gSymbolTable[i].address + START_ADDR;
                 }
-
+                else
+                {
+                    relAddress = gSymbolTable[j].address - program[i].address;
+                    if (program[i].address > gSymbolTable[j].address)
+                    {
+                        relAddress = gSymbolTable[j].address - program[i].address;
+                    }
+                }
                 getAsciiNumber(relAddress, buffer, &size);
                 memcpy(program[i].instruction + match, buffer, size);
                 program[i].instruction[match + size] = '\0';
+                memcpy(program[i].label, gSymbolTable[j].label, len);
             }
         }
     }
@@ -227,7 +239,7 @@ CASM_STATIC void labelsToAdresses(char* file, int* fileSize, casm_program_t* pro
                                             Global functions
 ============================================================================================================ */
 
-void preprocessFile(char *file, casm_program_t* program)
+void preprocessFile(char *file, casm_program_t* program, int* programSize)
 {
     int size = strlen(file);
 
@@ -237,5 +249,5 @@ void preprocessFile(char *file, casm_program_t* program)
 
     procsToLabels(file,&size);
 
-    labelsToAdresses(file, &size, program);
+    labelsToAdresses(file, &size, program, programSize);
 }
