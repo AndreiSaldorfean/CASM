@@ -23,8 +23,10 @@ extern "C"{
 /* ============================================================================================================
                                             Global Variables
 ============================================================================================================ */
+KHASH_MAP_INIT_STR(REG_TABLE, uint16_t)
 KHASH_MAP_INIT_STR(INST_TABLE, uint16_t)
 KHASH_MAP_INIT_STR(SYM_TABLE, uint16_t)
+extern khash_t(REG_TABLE) *hReg;
 extern khash_t(INST_TABLE) *hIns;
 extern khash_t(SYM_TABLE) *hSym;
 /* ============================================================================================================
@@ -35,8 +37,11 @@ extern khash_t(SYM_TABLE) *hSym;
                                             Global functions
 ============================================================================================================ */
 
+int casmGetReg(const char* value);
+void casmSetReg(int key,const char* value);
 int casmGetSym(const char* value);
 void casmSetSym(int key,const char* value);
+void casmInitRegTable(void);
 void casmInitInstructionTable(void);
 uint16_t csamGetInstruction(const char* value);
 void casmDestroyDict(void);

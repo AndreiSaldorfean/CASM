@@ -47,3 +47,12 @@ void get_binary_num(uint16_t num, char* result)
         result[j++] = (num & (1 << i)) ? '1' : '0';
     }
 }
+
+int ascii_to_int(const char *str) {
+    int result = 0;
+    while (*str) {
+        result = result * 10 + (*str - '0');
+        str++;
+    }
+    return result;
+}

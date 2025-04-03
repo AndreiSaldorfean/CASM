@@ -112,6 +112,10 @@ typedef enum
     CASM_POPPC,
     CASM_PUSHF,
     CASM_POPF,
+    /**
+     * ERROR
+     */
+    CASM_ERR = 0xFFFF, /* 0xF00 */
 }casm_opcodes_t;
 
 typedef enum

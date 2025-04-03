@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include "casm_dict.h"
 
 /* ============================================================================================================
                                             DEFINES and ENUMS
@@ -38,7 +39,7 @@ static casm_program_t expectedResult3[200] =
         .address = 4
     },
     {
-        .instruction = "jmp 4",
+        .instruction = "jmp 10",
         .address = 6
     },
     {
@@ -46,7 +47,7 @@ static casm_program_t expectedResult3[200] =
         .address = 8
     },
     {
-        .instruction = "jmp -10",
+        .instruction = "jmp 0",
         .address = 10
     },
     {
@@ -303,12 +304,14 @@ void TS_Preprocessor4(void)
     int j = 0;
     casm_program_t program[200] = {0};
 
+    casmInitInstructionTable();
     if (!dir) {
         perror("opendir");
         return;
     }
-
-    while ((entry = readdir(dir)) != NULL) {
+    int k = 0;
+    while ((entry = readdir(dir)) != NULL)
+    {
         memset(fileContents,0,500);
         memset(filePath,0,100);
 
@@ -341,6 +344,7 @@ void TS_Preprocessor4(void)
     }
 
     closedir(dir);
+    casmDestroyDict();
 }
 
 /**
@@ -361,6 +365,7 @@ void TS_Preprocessor5(void)
     int programSize = 0;
     casm_program_t program[200] = {0};
 
+    casmInitInstructionTable();
     if (!dir) {
         perror("opendir");
         return;
@@ -398,4 +403,5 @@ void TS_Preprocessor5(void)
     }
 
     closedir(dir);
+    casmDestroyDict();
 }

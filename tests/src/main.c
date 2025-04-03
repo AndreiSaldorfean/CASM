@@ -4,6 +4,7 @@
 #include "ts_preprocessor.h"
 #include "casm_dict.h"
 #include "ts_tokenizer.h"
+#include "ts_error_handling.h"
 
 void setUp(void) { }
 
@@ -24,5 +25,6 @@ int main(){
     RUN_TEST(TS_Tokenizer2);
     RUN_TEST(TS_Tokenizer3);
     RUN_TEST(TS_Tokenizer4);
+    RUN_TEST(TS_ERROR_HANDLING1);
     return UNITY_END();
 }

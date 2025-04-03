@@ -19,7 +19,6 @@
 /* ============================================================================================================
                                             Local Variables
 ============================================================================================================ */
-
 /* ============================================================================================================
                                             Global Variables
 ============================================================================================================ */
@@ -27,8 +26,31 @@
 /* ============================================================================================================
                                             Local functions
 ============================================================================================================ */
+CASM_STATIC int isRegiserValid(const char* reg)
+{
+    char regBuf[10] = {0};
+    int match_len = 0;
+    int match = re_match(CASM_REGISTER_RGX, reg, &match_len);
+    if(match == -1){
+        return -1;
+    }
+    memcpy(regBuf, reg + match, match_len);
+    return casmGetReg(regBuf);
+}
 
-CASM_STATIC uint16_t getAddressingMode(const char* reg)
+CASM_STATIC uint16_t getRegisterIdx(const char* reg)
+{
+    char buf[10] = {0};
+    int len = 0;
+    int offset = re_match(CASM_REGISTER_RGX,reg,&len);
+    if( offset == -1){
+        return 0;
+    }
+    memcpy(buf, reg + offset + 1, len - 1);
+    return ascii_to_int(buf);
+}
+
+CASM_STATIC int getAddressingMode(const char* reg)
 {
     int match_len = 0;
     int match = re_match(CASM_IMM_AM_RGX, reg, &match_len);
@@ -36,8 +58,18 @@ CASM_STATIC uint16_t getAddressingMode(const char* reg)
         return 0;
     }
 
+    match = re_match(CASM_NEG_IMM_AM_RGX, reg, &match_len);
+    if(match != -1){
+        return 0;
+    }
+
+    int res = isRegiserValid(reg);
+    if(res == -1){
+        return 0xFF;
+    }
+
     match = re_match(CASM_DIRECT_AM_RGX, reg, &match_len);
-    if(match == -1){
+    if(match != -1){
         return 1;
     }
 
@@ -51,7 +83,7 @@ CASM_STATIC uint16_t getAddressingMode(const char* reg)
         return 3;
     }
 
-    return 0;
+    return -1;
 }
 
 CASM_STATIC casmInstructionFrame_t getEncodedInstruction(char** instructionTokens, uint16_t instrType)
@@ -60,6 +92,7 @@ CASM_STATIC casmInstructionFrame_t getEncodedInstruction(char** instructionToken
     int off = 0;
     int offset = 0;
     uint8_t reg = 0;
+    uint16_t idx = 0;
 
     switch (instrType)
     {
@@ -67,41 +100,71 @@ CASM_STATIC casmInstructionFrame_t getEncodedInstruction(char** instructionToken
         {
             /*--------------------------- SOURCE ------------------------------*/
             uint8_t ams = getAddressingMode(instructionTokens[2]);
-            if (ams == 3)
-            {
-                off = 0;
-                offset = re_match("\\d+\\[",instructionTokens[2],&off);
-                char buffer[4] = {0};
-                memcpy(buffer, instructionTokens[2] + offset, off-1);
 
-                long num = strtol(buffer, NULL, 10);
-                frame.offset1 = num;
+            switch(ams)
+            {
+                case 0:
+                {
+                    uint16_t num = ascii_to_int(instructionTokens[2]);
+                    frame.offsetSource = num;
+                    break;
+                }
+                case 3:
+                {
+                    off = 0;
+                    offset = re_match("\\d+\\[",instructionTokens[2],&off);
+                    char buffer[4] = {0};
+                    memcpy(buffer, instructionTokens[2] + offset, off-1);
+
+                    long num = strtol(buffer, NULL, 10);
+                    frame.offsetSource = num;
+                    break;
+                }
+                case 0xFF/* ERROR - Invalid register */:
+                {
+                    return (casmInstructionFrame_t){.instr = 0xFFFF};
+                    break;
+                }
             }
+
+            //Add the addressing mode to the instruction
             frame.instr |= (ams<<10);
 
-            off = 0;
-            offset = re_match("[Rr]",instructionTokens[2],&off);
-            reg = *(instructionTokens[2]+offset+1) - '0';
-            frame.instr |= (reg<<6);
+            //Add the source register to the instruction
+            idx = getRegisterIdx(instructionTokens[2]);
+            frame.instr |= (idx<<6);
 
             /*--------------------------- DESTINATION ------------------------------*/
             uint8_t amd = getAddressingMode(instructionTokens[1]);
-            if (amd == 3 )
+            switch (amd)
             {
-                off = 0;
-                offset = re_match("\\d+\\[",instructionTokens[1],&off);
-                char buffer[4] = {0};
-                memcpy(buffer, instructionTokens[1] + offset, off-1);
+                case 0:
+                {
+                    /* Cannot store in a constant*/
+                    return (casmInstructionFrame_t){.instr = 0xFFFF};
+                }
+                case 3:
+                {
+                    off = 0;
+                    offset = re_match("\\d+\\[",instructionTokens[1],&off);
+                    char buffer[4] = {0};
+                    memcpy(buffer, instructionTokens[1] + offset, off-1);
 
-                long num = strtol(buffer, NULL, 10);
-                frame.offset2 = num;
+                    long num = strtol(buffer, NULL, 10);
+                    frame.offsetDestination = num;
+                    break;
+                }
+                case 0xFF/* ERROR - Invalid register */:
+                {
+                    return (casmInstructionFrame_t){.instr = 0xFFFF};
+                }
             }
 
+            //Add the addressing mode to the instruction
             frame.instr |= (amd<<4);
-            off = 0;
-            offset = re_match("[Rr]",instructionTokens[1],&off);
-            reg = *(instructionTokens[1]+offset+1) - '0';
-            frame.instr |= reg;
+
+            idx = getRegisterIdx(instructionTokens[1]);
+            frame.instr |= idx;
             break;
 
         }
@@ -109,22 +172,32 @@ CASM_STATIC casmInstructionFrame_t getEncodedInstruction(char** instructionToken
         case CASM_B2_MASK:
         {
             uint8_t amd = getAddressingMode(instructionTokens[1]);
-            if (amd == 3 )
+            switch (amd)
             {
-                off = 0;
-                offset = re_match("\\d+\\[",instructionTokens[1],&off);
-                char buffer[4] = {0};
-                memcpy(buffer, instructionTokens[1] + offset, off-1);
+                case 0:
+                {
+                    uint16_t num = ascii_to_int(instructionTokens[1]);
+                    frame.offsetSource = num;
+                    break;
+                }
+                case 3:
+                {
+                    off = 0;
+                    offset = re_match("\\d+\\[",instructionTokens[1],&off);
+                    char buffer[4] = {0};
+                    memcpy(buffer, instructionTokens[1] + offset, off-1);
 
-                long num = strtol(buffer, NULL, 10);
-                frame.offset1 = num;
+                    long num = strtol(buffer, NULL, 10);
+                    frame.offsetSource = num;
+                }
+                case 0xFF/* ERROR - Invalid register */:
+                {
+                    return (casmInstructionFrame_t){.instr = 0xFFFF};
+                }
             }
 
             frame.instr |= (amd<<4);
-            off = 0;
-            offset = re_match("[Rr]",instructionTokens[1],&off);
-            reg = *(instructionTokens[1]+offset+1) - '0';
-            frame.instr |= reg;
+            frame.instr |= getRegisterIdx(instructionTokens[1]);
             break;
         }
 
@@ -191,35 +264,41 @@ casmInstructionFrame_t encodeInstruction(const char* inst,uint16_t type)
 {
     char buffer[3][20] = {0};
     char* ptr[3] = {buffer[0],buffer[1],buffer[2]};
+    int result = 0;
     casmInstructionFrame_t frame = {0};
 
     switch(type){
         case 0:
             {
-                tokenizeInstructionTypeB1(inst,ptr);
+                result = tokenizeInstructionTypeB1(inst,ptr);
                 frame = getEncodedInstruction(ptr, 0);
             }
             break;
         case CASM_B2_MASK:
             {
-                tokenizeInstructionTypeB2(inst,ptr);
+                result = tokenizeInstructionTypeB2(inst,ptr);
                 frame = getEncodedInstruction(ptr, CASM_B2_MASK);
             }
             break;
         case CASM_B3_MASK:
             {
-                tokenizeInstructionTypeB3(inst,ptr);
+                result = tokenizeInstructionTypeB3(inst,ptr);
                 frame = getEncodedInstruction(ptr, CASM_B3_MASK);
             }
             break;
         case CASM_B4_MASK:
             {
-                tokenizeInstructionTypeB4(inst,ptr);
+                result = tokenizeInstructionTypeB4(inst,ptr);
                 frame = getEncodedInstruction(ptr, CASM_B4_MASK);
             }
             break;
         default:
             break;
     }
+    if (result == -1)
+    {
+        frame.instr = 0xFFFF;
+    }
+
     return frame;
 }

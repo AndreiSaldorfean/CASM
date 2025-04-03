@@ -49,6 +49,7 @@ int main(int argc, char **argv)
     int opt                         = 0;
 
     casmInitInstructionTable();
+    casmInitRegTable();
 
     if(argc == 1)
     {
@@ -130,6 +131,11 @@ int main(int argc, char **argv)
         }
 
         casmInstructionFrame_t instr = encodeInstruction(instruction,instructionType);
+        if(instr.instr == 0XFFFF /*ERROR*/)
+        {
+            fprintf(stderr,"\n\033[0;31mError: Invalid instruction encountered: %s\e[0m\n\nOr no HALT instruction was added at the end of the program!\n", instruction);
+            break;
+        }
 
         if(instr.instr != 0)
         {
@@ -191,40 +197,40 @@ int main(int argc, char **argv)
             }
             programWriteIndex++;
         }
-        if(instr.offset1 != 0)
+        if(instr.offsetSource != 0)
         {
-            memcpy(objectFile+programWriteIndex,&instr.offset1,2);
+            memcpy(objectFile+programWriteIndex,&instr.offsetSource,2);
 
             if (debugEnabled)
             {
-                get_binary_num(instr.offset1, binaryInstruction);
+                get_binary_num(instr.offsetSource, binaryInstruction);
 
                 printf(
                     "0x"ADDR_PRINT BINARY_INST_PRINT
                     " 0x"HEX_INST_PRINT" "OFFSET_PRINT"\n",
                     (program[i].address + 2),
                     binaryInstruction,
-                    instr.offset1,
-                    instr.offset1
+                    instr.offsetSource,
+                    instr.offsetSource
 );
             }
             programWriteIndex++;
         }
-        if(instr.offset2 != 0)
+        if(instr.offsetDestination != 0)
         {
-            memcpy(objectFile+programWriteIndex,&instr.offset2,2);
+            memcpy(objectFile+programWriteIndex,&instr.offsetDestination,2);
 
             if (debugEnabled)
             {
-                get_binary_num(instr.offset2, binaryInstruction);
+                get_binary_num(instr.offsetDestination, binaryInstruction);
 
                 printf(
                     "0x"ADDR_PRINT BINARY_INST_PRINT
                     " 0x"HEX_INST_PRINT" "OFFSET_PRINT"\n",
                     (program[i].address + 4),
                     binaryInstruction,
-                    instr.offset2,
-                    instr.offset2
+                    instr.offsetDestination,
+                    instr.offsetDestination
                 );
             }
             programWriteIndex++;
